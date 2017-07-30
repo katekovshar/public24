@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+
+---
+
+spring:
+  profiles: dev
+security:
+  user:
+    name: dev-user
+    password: p24_DEV
+    role: USER,ADMIN,ACTUATOR
