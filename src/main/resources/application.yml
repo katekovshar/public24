@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: dev
+  http:
+    converters:
+      preferred-json-mapper: gson
 
 ---
 
