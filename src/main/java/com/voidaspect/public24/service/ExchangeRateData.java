@@ -18,7 +18,7 @@ public final class ExchangeRateData {
 
     private Integer baseCurrency;
 
-    private Currency baseCurrencyLit;
+    private String baseCurrencyLit;
 
     @SerializedName("exchangeRate")
     private List<ExchangeRate> exchangeRates;

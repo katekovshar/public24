@@ -10,9 +10,9 @@ import java.math.BigDecimal;
 @Data
 public final class ExchangeRate {
 
-    private Currency baseCurrency;
+    private String baseCurrency;
 
-    private Currency currency;
+    private String currency;
 
     private BigDecimal saleRateNB;
 

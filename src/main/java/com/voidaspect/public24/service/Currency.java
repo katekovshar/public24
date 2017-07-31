@@ -5,6 +5,8 @@ package com.voidaspect.public24.service;
  */
 public enum Currency {
 
+    AUD,
+
     USD,
 
     EUR,
@@ -14,6 +16,8 @@ public enum Currency {
     CHF,
 
     GBP,
+    
+    CZK,
 
     PLZ,
 

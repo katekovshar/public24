@@ -35,4 +35,12 @@ public final class Privat24Service implements Privat24 {
 
         return restTemplate.getForObject(uri, ExchangeRateData.class);
     }
+
+    @Override
+    public ExchangeRateData getExchangeRatesForDate(LocalDate date, Currency currency) {
+        ExchangeRateData exchangeRatesForDate = getExchangeRatesForDate(date);
+        exchangeRatesForDate.getExchangeRates()
+                .removeIf(exchangeRate -> !exchangeRate.getCurrency().equals(currency.name()));
+        return exchangeRatesForDate;
+    }
 }

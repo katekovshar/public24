@@ -9,4 +9,6 @@ public interface Privat24 {
 
     ExchangeRateData getExchangeRatesForDate(LocalDate date);
 
+    ExchangeRateData getExchangeRatesForDate(LocalDate date, Currency currency);
+
 }
