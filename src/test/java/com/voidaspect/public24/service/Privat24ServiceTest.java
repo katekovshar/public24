@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -56,8 +57,11 @@ public class Privat24ServiceTest {
 
     @Test
     public void testGetExchangeRateForDateAndCurrency() throws Exception {
-        ExchangeRateData exchangeRatesForDate = privat24Service.getExchangeRatesForDate(LocalDate.now(), Currency.USD);
-        assertEquals(1, exchangeRatesForDate.getExchangeRates().size());
+        ExchangeRate exchangeRate = privat24Service.getExchangeRatesForDate(LocalDate.now(), Currency.USD)
+                .orElseThrow(() -> {
+                    fail("Currency not supported");
+                    return new RuntimeException("unreachable");
+                });
         String json = "{\n" +
                 "      \"baseCurrency\": \"UAH\"," +
                 "      \"currency\": \"USD\"," +
@@ -66,6 +70,6 @@ public class Privat24ServiceTest {
                 "      \"saleRate\": 15.7," +
                 "      \"purchaseRate\": 15.35" +
                 "    }";
-        assertEquals(gson.fromJson(json, ExchangeRate.class), exchangeRatesForDate.getExchangeRates().get(0));
+        assertEquals(gson.fromJson(json, ExchangeRate.class), exchangeRate);
     }
 }
