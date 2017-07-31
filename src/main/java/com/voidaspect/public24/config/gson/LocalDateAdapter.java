@@ -13,16 +13,19 @@ public final class LocalDateAdapter implements
         JsonDeserializer<LocalDate>,
         JsonSerializer<LocalDate> {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private final DateTimeFormatter dateTimeFormatter;
+
+    public LocalDateAdapter(DateTimeFormatter dateTimeFormatter) {
+        this.dateTimeFormatter = dateTimeFormatter;
+    }
 
     @Override
     public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
-        return context.serialize(src.format(DATE_TIME_FORMATTER));
+        return context.serialize(src.format(dateTimeFormatter));
     }
 
     @Override
     public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return LocalDate.parse(json.getAsString(), DATE_TIME_FORMATTER);
+        return LocalDate.parse(json.getAsString(), dateTimeFormatter);
     }
 }

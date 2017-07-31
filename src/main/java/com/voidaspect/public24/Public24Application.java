@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @SpringBootApplication
 public class Public24Application {
@@ -29,8 +30,13 @@ public class Public24Application {
     public Gson gson() {
 	    return GsonFactory.getDefaultFactory()
                 .getGsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter(privat24DateFormat()))
                 .create();
+    }
+
+    @Bean
+    public DateTimeFormatter privat24DateFormat() {
+	    return DateTimeFormatter.ofPattern("dd.MM.yyyy");
     }
 
 }
