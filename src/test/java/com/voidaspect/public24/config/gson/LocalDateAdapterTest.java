@@ -3,26 +3,35 @@ package com.voidaspect.public24.config.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.voidaspect.public24.config.gson.LocalDateAdapter;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.*;
 
 /**
  * @author mikhail.h
  */
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class LocalDateAdapterTest {
+
+    @Autowired
+    DateTimeFormatter dateTimeFormatter;
 
     private Gson gson;
 
     @Before
     public void setUp() throws Exception {
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter(dateTimeFormatter))
                 .create();
     }
 
