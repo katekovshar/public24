@@ -1,2 +1,2 @@
 # Public 24 
-Web service for privat24 public api integration 
+Web service for privat24 public API integration.
