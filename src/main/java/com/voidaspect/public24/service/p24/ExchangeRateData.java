@@ -1,4 +1,4 @@
-package com.voidaspect.public24.service;
+package com.voidaspect.public24.service.p24;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;

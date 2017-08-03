@@ -1,4 +1,4 @@
-package com.voidaspect.public24.service;
+package com.voidaspect.public24.service.p24;
 
 import ai.api.util.IOUtils;
 import com.google.gson.Gson;
