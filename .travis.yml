@@ -1,14 +1,16 @@
 language: java
-
 before_install:
- - chmod +x gradlew
-
+- chmod +x gradlew
 before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 jdk:
-  - oraclejdk8
+- oraclejdk8
+notifications:
+  slack:
+    rooms:
+      secure: STf7mxSlqgGZxT7ahCqmk/nO6nqLyVUp8RdNz9TjIy4w1DvWSI+Ol7s3isKeGL4LyoNeC7qmHWlQRm38hmN5uxU9D+SsOu0hwgT+w2sl9wcacyo7tKeJT8Nfns2wG7JhkyendCad7ZjRuUjNGfEMjkBPCp1GucKm7f2FsLuLE7C0WocjHy+sUc1zH4Wxv91iXT1tB4Y1ZTbwseMI52Ti+Pr90azaQ/iRU3Bch/+Om3IMmCNY50pGgi/2UX+J9JGzstbkiptoEoo8dIQN/yycyLnIpMWRjUaxOdjfnhIgx0q+8+mXJVBRsLgz8mRF7Q5pfpfaCSrt1dkrpJnnvr/k10ptEqBVees+MDqCMfWML8AdK59K4sybiJHPkLtA0QdEAXszljDMUIyukK1NFNIYXfozSILiEA9jEhWXNCetIsZWUWQDpgWfJejSYFAc1xylS7WSjcko2wAhTW+J4Ikjh9ISG11J8Rsl+dG0EtliuG/DRWH0J7cuGvrBw0pSkDPFo3jKDHctLPkjCteTeBjcwN0EgXue7TvuDE2xOa9yj0/9vHr2pEvc2OSeKtkP2QZ2iYRlgs+2Jk4T0pH3YLN1+pbSJyxhwDz9ruMOSsyIrIqgLoEUwI8rxqfQ/if8sDz+q+6aVwldK3SbFjigGKGa3FiGeT+F2n0Q2MLObBb/dEs=
