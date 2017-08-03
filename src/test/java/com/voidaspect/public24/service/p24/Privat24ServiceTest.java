@@ -28,7 +28,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(value = Privat24Service.class, includeFilters =
-@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = GsonConfig.class))
+@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {GsonConfig.class, Privat24Properties.class}))
 public class Privat24ServiceTest {
 
     @Autowired

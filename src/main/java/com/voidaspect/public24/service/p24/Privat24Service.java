@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -16,23 +17,30 @@ import java.util.Optional;
 @Service
 public final class Privat24Service implements Privat24 {
 
-    private static final String URI_TEMPLATE = "https://api.privatbank.ua/p24api/exchange_rates?json&date=";
-
     private final RestTemplate restTemplate;
 
     private final DateTimeFormatter dateTimeFormatter;
 
+    private final Privat24Properties privat24Properties;
+
     @Autowired
-    public Privat24Service(RestTemplateBuilder restTemplateBuilder, DateTimeFormatter dateTimeFormatter) {
-        restTemplate = restTemplateBuilder
-                .build();
+    public Privat24Service(RestTemplateBuilder restTemplateBuilder,
+                           DateTimeFormatter dateTimeFormatter,
+                           Privat24Properties privat24Properties) {
+        this.restTemplate = restTemplateBuilder.build();
         this.dateTimeFormatter = dateTimeFormatter;
+        this.privat24Properties = privat24Properties;
     }
 
     @Override
     public ExchangeRateData getExchangeRatesForDate(LocalDate date) {
-        URI uri = URI.create(URI_TEMPLATE +
-                date.format(dateTimeFormatter));
+        URI uri = UriComponentsBuilder.newInstance()
+                .scheme(privat24Properties.getScheme())
+                .host(privat24Properties.getHost())
+                .path("/exchange_rates")
+                .queryParam(privat24Properties.getFormat())
+                .queryParam("date", date.format(dateTimeFormatter))
+                .build().toUri();
 
         return restTemplate.getForObject(uri, ExchangeRateData.class);
     }
