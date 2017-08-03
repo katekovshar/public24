@@ -33,11 +33,11 @@ public class GsonConfig {
     public Gson gson() {
         return new GsonBuilder()
                 .setDateFormat(DATE_FORMAT.toPattern())
-                .registerTypeAdapter(ResponseMessage.class, Adapters.RESPONSE_MESSAGE)
-                .registerTypeAdapter(ResponseMessage.MessageType.class, Adapters.RESPONSE_MESSAGE_TYPE)
-                .registerTypeAdapter(ResponseMessage.Platform.class, Adapters.RESPONSE_MESSAGE_PLATFORM)
-                .registerTypeAdapter(ResponseMessage.ResponseSpeech.class, Adapters.RESPONSE_MESSAGE_SPEECH)
-                .registerTypeAdapter(LocalDate.class, Adapters.localDateAdapter(privat24DateFormat()))
+                .registerTypeAdapter(ResponseMessage.class, Adapters.getResponseMessageAdapter())
+                .registerTypeAdapter(ResponseMessage.MessageType.class, Adapters.getResponseMessageTypeAdapter())
+                .registerTypeAdapter(ResponseMessage.Platform.class, Adapters.getResponseMessagePlatformAdapter())
+                .registerTypeAdapter(ResponseMessage.ResponseSpeech.class, Adapters.getResponseMessageSpeechDeserializer())
+                .registerTypeAdapter(LocalDate.class, Adapters.getLocalDateAdapter(privat24DateFormat()))
                 .create();
     }
 

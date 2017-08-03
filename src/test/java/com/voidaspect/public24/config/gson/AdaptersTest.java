@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author mikhail.h
@@ -31,7 +31,7 @@ public class AdaptersTest {
     @Before
     public void setUp() throws Exception {
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, Adapters.localDateAdapter(dateTimeFormatter))
+                .registerTypeAdapter(LocalDate.class, Adapters.getLocalDateAdapter(dateTimeFormatter))
                 .create();
     }
 

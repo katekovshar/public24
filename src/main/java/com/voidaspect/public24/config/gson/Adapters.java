@@ -14,17 +14,39 @@ final class Adapters {
 
     private static final Gson DEFAULT_GSON = new GsonBuilder().create();
 
-    static abstract class TypeAdapter<T> implements
+    /**
+     * Disallow instantiation
+     */
+    private Adapters(){
+    }
+
+    static abstract class TypeSerializationAdapter<T> implements
             JsonDeserializer<T>,
             JsonSerializer<T> {
     }
 
-    static TypeAdapter<LocalDate> localDateAdapter(DateTimeFormatter dateTimeFormatter) {
+    static TypeSerializationAdapter<LocalDate> getLocalDateAdapter(DateTimeFormatter dateTimeFormatter) {
         return new LocalDateAdapter(dateTimeFormatter);
     }
 
-    static final TypeAdapter<ResponseMessage.Platform> RESPONSE_MESSAGE_PLATFORM =
-            new TypeAdapter<ResponseMessage.Platform>() {
+    static TypeSerializationAdapter<ResponseMessage.Platform> getResponseMessagePlatformAdapter() {
+        return RESPONSE_MESSAGE_PLATFORM;
+    }
+
+    static TypeSerializationAdapter<ResponseMessage.MessageType> getResponseMessageTypeAdapter() {
+        return RESPONSE_MESSAGE_TYPE;
+    }
+
+    static TypeSerializationAdapter<ResponseMessage> getResponseMessageAdapter() {
+        return RESPONSE_MESSAGE;
+    }
+
+    static JsonDeserializer<ResponseMessage.ResponseSpeech> getResponseMessageSpeechDeserializer() {
+        return RESPONSE_MESSAGE_SPEECH;
+    }
+
+    private static final TypeSerializationAdapter<ResponseMessage.Platform> RESPONSE_MESSAGE_PLATFORM =
+            new TypeSerializationAdapter<ResponseMessage.Platform>() {
                 @Override
                 public JsonElement serialize(ResponseMessage.Platform src, Type typeOfT, JsonSerializationContext context) {
                     return context.serialize(src.getName());
@@ -45,8 +67,8 @@ final class Adapters {
                 }
             };
 
-    static final TypeAdapter<ResponseMessage.MessageType> RESPONSE_MESSAGE_TYPE =
-            new TypeAdapter<ResponseMessage.MessageType>() {
+    private static final TypeSerializationAdapter<ResponseMessage.MessageType> RESPONSE_MESSAGE_TYPE =
+            new TypeSerializationAdapter<ResponseMessage.MessageType>() {
                 @Override
                 public JsonElement serialize(ResponseMessage.MessageType src, Type typeOfT, JsonSerializationContext context) {
                     return context.serialize(src.getCode() <= 4 ? src.getCode() : src.getName());
@@ -69,8 +91,8 @@ final class Adapters {
                 }
             };
 
-    static final TypeAdapter<ResponseMessage> RESPONSE_MESSAGE =
-            new TypeAdapter<ResponseMessage>() {
+    private static final TypeSerializationAdapter<ResponseMessage> RESPONSE_MESSAGE =
+            new TypeSerializationAdapter<ResponseMessage>() {
                 @Override
                 public ResponseMessage deserialize(JsonElement json, Type typeOfT,
                                                    JsonDeserializationContext context) throws JsonParseException {
@@ -85,7 +107,7 @@ final class Adapters {
                 }
             };
 
-    static final JsonDeserializer<ResponseMessage.ResponseSpeech> RESPONSE_MESSAGE_SPEECH =
+    private static final JsonDeserializer<ResponseMessage.ResponseSpeech> RESPONSE_MESSAGE_SPEECH =
             (json, typeOfT, context) -> {
 
                 if (json.isJsonObject() && ((JsonObject) json).get("speech").isJsonPrimitive()) {
@@ -97,14 +119,10 @@ final class Adapters {
                 return DEFAULT_GSON.fromJson(json, typeOfT);
             };
 
-    private Adapters(){
-    }
-
-
     /**
      * @author mikhail.h
      */
-    private static final class LocalDateAdapter extends TypeAdapter<LocalDate> {
+    private static final class LocalDateAdapter extends TypeSerializationAdapter<LocalDate> {
 
         private final DateTimeFormatter dateTimeFormatter;
 
