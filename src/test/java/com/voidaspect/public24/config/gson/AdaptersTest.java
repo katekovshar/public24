@@ -20,8 +20,8 @@ import static org.junit.Assert.*;
  * @author mikhail.h
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
-public class LocalDateAdapterTest {
+@SpringBootTest(classes = GsonConfig.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+public class AdaptersTest {
 
     @Autowired
     DateTimeFormatter dateTimeFormatter;
@@ -31,7 +31,7 @@ public class LocalDateAdapterTest {
     @Before
     public void setUp() throws Exception {
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter(dateTimeFormatter))
+                .registerTypeAdapter(LocalDate.class, Adapters.localDateAdapter(dateTimeFormatter))
                 .create();
     }
 

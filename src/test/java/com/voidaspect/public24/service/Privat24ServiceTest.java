@@ -2,11 +2,14 @@ package com.voidaspect.public24.service;
 
 import ai.api.util.IOUtils;
 import com.google.gson.Gson;
+import com.voidaspect.public24.config.gson.GsonConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -24,7 +27,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author mikhail.h
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(Privat24Service.class)
+@RestClientTest(value = Privat24Service.class, includeFilters =
+@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = GsonConfig.class))
 public class Privat24ServiceTest {
 
     @Autowired
