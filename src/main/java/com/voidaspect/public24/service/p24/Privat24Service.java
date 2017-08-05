@@ -34,9 +34,7 @@ public final class Privat24Service implements Privat24 {
 
     @Override
     public ExchangeRateData getExchangeRatesForDate(LocalDate date) {
-        URI uri = UriComponentsBuilder.newInstance()
-                .scheme(privat24Properties.getScheme())
-                .host(privat24Properties.getHost())
+        URI uri = UriComponentsBuilder.fromHttpUrl(privat24Properties.getUrl())
                 .path("/exchange_rates")
                 .queryParam(privat24Properties.getFormat())
                 .queryParam("date", date.format(dateTimeFormatter))

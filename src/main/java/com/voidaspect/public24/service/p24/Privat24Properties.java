@@ -14,10 +14,8 @@ import org.springframework.stereotype.Component;
 @Setter
 public final class Privat24Properties {
 
-    private String host;
+    private String url;
 
     private String format;
-
-    private String scheme;
 
 }
