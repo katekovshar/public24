@@ -5,8 +5,7 @@ spring:
     converters:
       preferred-json-mapper: gson
 privat24:
-  scheme: https
-  host: api.privatbank.ua/p24api
+  url: https://api.privatbank.ua/p24api
   format: json
 ---
 spring:
