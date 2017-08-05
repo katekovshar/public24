@@ -25,5 +25,7 @@ public enum Currency {
 
     XAU,
 
-    CAD
+    CAD,
+
+    BTC
 }
