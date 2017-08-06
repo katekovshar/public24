@@ -10,6 +10,9 @@ privat24:
 ---
 spring:
   profiles: dev
+logging:
+  level:
+    com.voidaspect.public24: debug
 security:
   user:
     name: dev-user

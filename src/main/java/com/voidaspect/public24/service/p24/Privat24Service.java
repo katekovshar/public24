@@ -42,7 +42,7 @@ public final class Privat24Service implements Privat24 {
                 .path("/exchange_rates")
                 .queryParam("date", date.format(dateTimeFormatter))
                 .build().toUri();
-
+        log.debug("GET Request to p24 api: {}", uri);
         return restTemplate.getForObject(uri, ExchangeRateHistory.class);
     }
 
