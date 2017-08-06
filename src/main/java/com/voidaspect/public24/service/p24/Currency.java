@@ -1,5 +1,8 @@
 package com.voidaspect.public24.service.p24;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * @author mikhail.h
  */
@@ -27,5 +30,11 @@ public enum Currency {
 
     CAD,
 
-    BTC
+    BTC;
+
+    public static Optional<Currency> getByName(String currencyCode) {
+        return Arrays.stream(values())
+                .filter(currency -> currency.name().equalsIgnoreCase(currencyCode))
+                .findAny();
+    }
 }

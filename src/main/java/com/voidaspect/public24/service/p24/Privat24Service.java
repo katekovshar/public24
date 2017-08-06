@@ -47,11 +47,11 @@ public final class Privat24Service implements Privat24 {
     }
 
     @Override
-    public Optional<ExchangeRateHistoryCurrency> getExchangeRatesForDate(LocalDate date, Currency currency) {
-        return getExchangeRatesForDate(date).getExchangeRates()
-                .stream()
-                .filter(exchangeRate -> exchangeRate.getCurrency().equals(currency.name()))
-                .findAny();
+    public ExchangeRateHistory getExchangeRatesForDate(LocalDate date, Currency currency) {
+        ExchangeRateHistory exchangeRatesForDate = getExchangeRatesForDate(date);
+        exchangeRatesForDate.getExchangeRates()
+                .removeIf(exchangeRate -> !exchangeRate.getCurrency().equals(currency.name()));
+        return exchangeRatesForDate;
     }
 
     @Override

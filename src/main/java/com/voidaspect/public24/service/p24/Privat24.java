@@ -11,7 +11,7 @@ public interface Privat24 {
 
     ExchangeRateHistory getExchangeRatesForDate(LocalDate date);
 
-    Optional<ExchangeRateHistoryCurrency> getExchangeRatesForDate(LocalDate date, Currency currency);
+    ExchangeRateHistory getExchangeRatesForDate(LocalDate date, Currency currency);
 
     List<CurrentExchangeRate> getCurrentExchangeRates(ExchangeRateType exchangeRateType);
 

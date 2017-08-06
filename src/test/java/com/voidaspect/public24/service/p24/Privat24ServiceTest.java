@@ -116,20 +116,23 @@ public class Privat24ServiceTest {
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
                 .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
 
-        ExchangeRateHistoryCurrency exchangeRate = privat24Service.getExchangeRatesForDate(LocalDate.now(), Currency.USD)
-                .orElseThrow(() -> {
-                    fail("Currency not supported");
-                    return new RuntimeException("unreachable");
-                });
+        ExchangeRateHistory exchangeRate = privat24Service.getExchangeRatesForDate(LocalDate.now(), Currency.USD);
+
         restServiceServer.verify();
         String json = "{\n" +
+                "  \"date\": \"01.12.2014\",\n" +
+                "  \"bank\": \"PB\",\n" +
+                "  \"baseCurrency\": 980,\n" +
+                "  \"baseCurrencyLit\": \"UAH\",\n" +
+                "  \"exchangeRate\": [{\n" +
                 "      \"baseCurrency\": \"UAH\"," +
                 "      \"currency\": \"USD\"," +
                 "      \"saleRateNB\": 15.056413," +
                 "      \"purchaseRateNB\": 15.056413," +
                 "      \"saleRate\": 15.7," +
                 "      \"purchaseRate\": 15.35" +
-                "    }";
-        assertEquals(gson.fromJson(json, ExchangeRateHistoryCurrency.class), exchangeRate);
+                "    }]" +
+                "}";
+        assertEquals(gson.fromJson(json, ExchangeRateHistory.class), exchangeRate);
     }
 }
