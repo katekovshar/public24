@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @author mikhail.h
  */
 @Data
-public final class ExchangeRate {
+public final class ExchangeRateHistoryCurrency {
 
     private String baseCurrency;
 

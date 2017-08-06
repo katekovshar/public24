@@ -1,6 +1,7 @@
 package com.voidaspect.public24.service.p24;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -8,8 +9,13 @@ import java.util.Optional;
  */
 public interface Privat24 {
 
-    ExchangeRateData getExchangeRatesForDate(LocalDate date);
+    ExchangeRateHistory getExchangeRatesForDate(LocalDate date);
 
-    Optional<ExchangeRate> getExchangeRatesForDate(LocalDate date, Currency currency);
+    Optional<ExchangeRateHistoryCurrency> getExchangeRatesForDate(LocalDate date, Currency currency);
+
+    List<CurrentExchangeRate> getCurrentExchangeRates(ExchangeRateType exchangeRateType);
+
+    Optional<CurrentExchangeRate> getCurrentExchangeRates(ExchangeRateType exchangeRateType, Currency currency);
+
 
 }

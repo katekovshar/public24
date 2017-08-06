@@ -10,7 +10,7 @@ import java.util.List;
  * @author mikhail.h
  */
 @Data
-public final class ExchangeRateData {
+public final class ExchangeRateHistory {
 
     private LocalDate date;
 
@@ -21,6 +21,6 @@ public final class ExchangeRateData {
     private String baseCurrencyLit;
 
     @SerializedName("exchangeRate")
-    private List<ExchangeRate> exchangeRates;
+    private List<ExchangeRateHistoryCurrency> exchangeRates;
 
 }
