@@ -19,7 +19,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/resources/**").permitAll()
                 .antMatchers("/**").hasRole("USER")
                 .and().httpBasic().realmName("PUB24")
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
