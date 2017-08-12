@@ -51,7 +51,6 @@ public final class AgentWebhookService implements AgentWebhook {
         val intent = Intent.getByName(intentName);
 
         val fulfillment = new Fulfillment();
-//        final String textOutput;
         val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
         val currency = Currency.getByName(currencyCode);
         List<String> messages = new ArrayList<>();
@@ -61,15 +60,15 @@ public final class AgentWebhookService implements AgentWebhook {
                 val exchangeRateType = ExchangeRateType.getByName(exchangeRateTypeName);
                 messages.add("Current exchange rate for " + Currency.UAH);
                 messages.addAll(currency
-                        .flatMap(ccy -> privat24.getCurrentExchangeRates(exchangeRateType, ccy))
+                        .map(ccy -> privat24.getCurrentExchangeRates(exchangeRateType, ccy)
+                                .map(Collections::singletonList)
+                                .orElseGet(Collections::emptyList))
+                        .orElseGet(() -> privat24.getCurrentExchangeRates(exchangeRateType))
+                        .stream()
                         .map(CURRENT_EXCHANGE_RATE_STRING_FUNCTION)
-                        .map(Collections::singletonList)
-                        .orElseGet(() -> privat24.getCurrentExchangeRates(exchangeRateType)
-                                .stream()
-                                .map(CURRENT_EXCHANGE_RATE_STRING_FUNCTION)
-                                .collect(Collectors.toList())));
+                        .collect(Collectors.toList()));
                 validateExchangeCourseMessageList(messages,
-                        "No exchange course found for current date " +
+                        "No exchange rate found for current date " +
                                 currency.map(c -> "and currency " + c + ".")
                                         .orElse("."));
                 break;
@@ -79,20 +78,20 @@ public final class AgentWebhookService implements AgentWebhook {
                         .toInstant()
                         .atZone(ZONE_ID).toLocalDate();
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
-                log.debug("Retrieving currency exchange history for date {}", isoDate);
+                log.debug("Retrieving currency exchange history for date {} and {} ccy", isoDate,
+                        currency.map(Enum::name).orElse("unspecified"));
                 messages.add("Exchange rate for " + Currency.UAH + " on " + isoDate);
                 messages.addAll(currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
-                        .flatMap(e -> e.getExchangeRates().stream().findAny())
-                        .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
-                        .map(Collections::singletonList)
+                        .map(ExchangeRateHistory::getExchangeRates)
                         .orElseGet(() -> privat24.getExchangeRatesForDate(localDate)
-                                .getExchangeRates().stream()
-                                .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
-                                .collect(Collectors.toList())));
+                                .getExchangeRates())
+                        .stream()
+                        .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
+                        .collect(Collectors.toList()));
                 validateExchangeCourseMessageList(messages,
-                        "No exchange course history found for date " + isoDate +
-                                currency.map(c -> "and currency " + c + ".")
+                        "No exchange rate history found for date " + isoDate +
+                                currency.map(c -> " and currency " + c + ".")
                                         .orElse("."));
                 break;
             default:
@@ -101,12 +100,6 @@ public final class AgentWebhookService implements AgentWebhook {
         val responseSpeech = new ResponseMessage.ResponseSpeech();
         responseSpeech.setSpeech(messages);
         fulfillment.setMessages(responseSpeech);
-
-//        log.debug("Output speech: {}", textOutput);
-
-//        fulfillment.setDisplayText(textOutput);
-//        fulfillment.setSpeech(textOutput);
-//        fulfillment.setMessages(responseMessages);
         fulfillment.setSource(SOURCE);
         return fulfillment;
     }
