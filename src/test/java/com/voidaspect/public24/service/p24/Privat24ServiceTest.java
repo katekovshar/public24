@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 
@@ -76,6 +77,7 @@ public class Privat24ServiceTest {
     }
 
     @Test
+    @DirtiesContext
     public void testGetCurrentRateForCurrency() throws Exception {
 
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=11")))
@@ -110,6 +112,7 @@ public class Privat24ServiceTest {
     }
 
     @Test
+    @DirtiesContext
     public void testGetExchangeRateForDateAndCurrency() throws Exception {
 
 
