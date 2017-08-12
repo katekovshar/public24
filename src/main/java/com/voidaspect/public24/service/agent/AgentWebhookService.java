@@ -68,15 +68,19 @@ public final class AgentWebhookService implements AgentWebhook {
                                 .stream()
                                 .map(CURRENT_EXCHANGE_RATE_STRING_FUNCTION)
                                 .collect(Collectors.toList())));
-
+                validateExchangeCourseMessageList(messages,
+                        "No exchange course found for current date " +
+                                currency.map(c -> "and currency " + c + ".")
+                                        .orElse("."));
                 break;
             case EXCHANGE_RATE_HISTORY:
                 val localDate = Optional.ofNullable(incompleteResult.getDateParameter(DATE.getName()))
                         .orElseGet(Date::new)
                         .toInstant()
                         .atZone(ZONE_ID).toLocalDate();
-                log.debug("Retrieving currency exchange history for date {}", localDate.format(DateTimeFormatter.ISO_DATE));
-                messages.add("Exchange rate for " + Currency.UAH + " on " + localDate.format(DateTimeFormatter.ISO_DATE));
+                val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
+                log.debug("Retrieving currency exchange history for date {}", isoDate);
+                messages.add("Exchange rate for " + Currency.UAH + " on " + isoDate);
                 messages.addAll(currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
                         .flatMap(e -> e.getExchangeRates().stream().findAny())
@@ -86,6 +90,10 @@ public final class AgentWebhookService implements AgentWebhook {
                                 .getExchangeRates().stream()
                                 .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
                                 .collect(Collectors.toList())));
+                validateExchangeCourseMessageList(messages,
+                        "No exchange course history found for date " + isoDate +
+                                currency.map(c -> "and currency " + c + ".")
+                                        .orElse("."));
                 break;
             default:
                 throw new IllegalStateException("Unreachable statement");
@@ -101,6 +109,13 @@ public final class AgentWebhookService implements AgentWebhook {
 //        fulfillment.setMessages(responseMessages);
         fulfillment.setSource(SOURCE);
         return fulfillment;
+    }
+
+    private void validateExchangeCourseMessageList(List<String> messages, String message) {
+        if (messages.size() <= 1) {
+            messages.clear();
+            messages.add(message);
+        }
     }
 
     private static String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
