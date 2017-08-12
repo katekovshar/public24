@@ -17,10 +17,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http
                 .authorizeRequests()
-                .antMatchers("/", "/resources/**").permitAll()
-                .antMatchers("/**").hasRole("USER")
+                .antMatchers("/").permitAll()
+                .antMatchers("/api-ai/**").hasRole("USER")
                 .and().httpBasic().realmName("PUB24")
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -28,7 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers("/resources/**")
                 .antMatchers(HttpMethod.OPTIONS);
     }
 
