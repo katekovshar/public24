@@ -10,9 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author mikhail.h
@@ -27,6 +25,8 @@ public final class Privat24Service implements Privat24 {
 
     private final Privat24Properties privat24Properties;
 
+    private final Map<LocalDate, ExchangeRateHistory> exchangeHistoryCache = new HashMap<>();
+
     @Autowired
     public Privat24Service(RestTemplateBuilder restTemplateBuilder,
                            DateTimeFormatter dateTimeFormatter,
@@ -38,12 +38,14 @@ public final class Privat24Service implements Privat24 {
 
     @Override
     public ExchangeRateHistory getExchangeRatesForDate(LocalDate date) {
-        val uri = getUriComponentsBuilder()
-                .path("/exchange_rates")
-                .queryParam("date", date.format(dateTimeFormatter))
-                .build().toUri();
-        log.debug("GET Request to p24 api: {}", uri);
-        return restTemplate.getForObject(uri, ExchangeRateHistory.class);
+        return exchangeHistoryCache.computeIfAbsent(date, d -> {
+            val uri = getUriComponentsBuilder()
+                    .path("/exchange_rates")
+                    .queryParam("date", date.format(dateTimeFormatter))
+                    .build().toUri();
+            log.debug("GET Request to p24 api: {}", uri);
+            return restTemplate.getForObject(uri, ExchangeRateHistory.class);
+        });
     }
 
     @Override
