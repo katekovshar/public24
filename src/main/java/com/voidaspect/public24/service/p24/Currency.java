@@ -8,6 +8,8 @@ import java.util.Optional;
  */
 public enum Currency {
 
+    UAH,
+
     AUD,
 
     USD,
