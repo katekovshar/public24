@@ -4,6 +4,7 @@ import ai.api.model.Fulfillment;
 import ai.api.model.ResponseMessage;
 import com.voidaspect.public24.controller.AiWebhookRequest;
 import com.voidaspect.public24.service.p24.*;
+import com.voidaspect.public24.service.p24.Currency;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,15 +28,15 @@ public final class AgentWebhookService implements AgentWebhook {
 
     private static final Function<CurrentExchangeRate, String> CURRENT_EXCHANGE_RATE_STRING_FUNCTION =
             e -> getExchangeRateDescription(
-                    Currency.valueOf(e.getCurrency()),
+                    e.getCurrency(),
                     e.getBuyRate(),
                     e.getSaleRate());
 
     private static final Function<ExchangeRateHistoryCurrency, String> EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION =
             e -> getExchangeRateDescription(
-                    Currency.valueOf(e.getCurrency()),
-                    e.getPurchaseRate(),
-                    e.getSaleRate());
+                    e.getCurrency(),
+                    Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
+                    Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB));
 
     private final Privat24 privat24;
 
@@ -55,7 +54,6 @@ public final class AgentWebhookService implements AgentWebhook {
 //        final String textOutput;
         val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
         val currency = Currency.getByName(currencyCode);
-        val responseSpeech = new ResponseMessage.ResponseSpeech();
         List<String> messages = new ArrayList<>();
         switch (intent) {
             case CURRENT_EXCHANGE_RATE:
@@ -70,14 +68,14 @@ public final class AgentWebhookService implements AgentWebhook {
                                 .stream()
                                 .map(CURRENT_EXCHANGE_RATE_STRING_FUNCTION)
                                 .collect(Collectors.toList())));
-                responseSpeech.setSpeech(messages);
-                fulfillment.setMessages(responseSpeech);
 
                 break;
             case EXCHANGE_RATE_HISTORY:
-                val localDate = incompleteResult.getDateParameter(DATE.getName())
+                val localDate = Optional.ofNullable(incompleteResult.getDateParameter(DATE.getName()))
+                        .orElseGet(Date::new)
                         .toInstant()
                         .atZone(ZONE_ID).toLocalDate();
+                log.debug("Retrieving currency exchange history for date {}", localDate.format(DateTimeFormatter.ISO_DATE));
                 messages.add("Exchange rate for " + Currency.UAH + " on " + localDate.format(DateTimeFormatter.ISO_DATE));
                 messages.addAll(currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
@@ -88,11 +86,13 @@ public final class AgentWebhookService implements AgentWebhook {
                                 .getExchangeRates().stream()
                                 .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
                                 .collect(Collectors.toList())));
-                fulfillment.setMessages(responseSpeech);
                 break;
             default:
                 throw new IllegalStateException("Unreachable statement");
         }
+        val responseSpeech = new ResponseMessage.ResponseSpeech();
+        responseSpeech.setSpeech(messages);
+        fulfillment.setMessages(responseSpeech);
 
 //        log.debug("Output speech: {}", textOutput);
 
@@ -103,8 +103,8 @@ public final class AgentWebhookService implements AgentWebhook {
         return fulfillment;
     }
 
-    private static String getExchangeRateDescription(Currency currency, BigDecimal purchase, BigDecimal sale) {
-        return currency.name() + ": purchase = " + purchase.toPlainString() + " sale = " + sale.toPlainString();
+    private static String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
+        return currencyCode + ": purchase = " + purchase.toPlainString() + " sale = " + sale.toPlainString();
     }
 
 
