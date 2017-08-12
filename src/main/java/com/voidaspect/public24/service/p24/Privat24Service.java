@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author mikhail.h
@@ -25,7 +26,8 @@ public final class Privat24Service implements Privat24 {
 
     private final Privat24Properties privat24Properties;
 
-    private final Map<LocalDate, ExchangeRateHistory> exchangeHistoryCache = new HashMap<>();
+    private final Map<LocalDate, ExchangeRateHistory> exchangeHistoryCache =
+            new HashMap<>();
 
     @Autowired
     public Privat24Service(RestTemplateBuilder restTemplateBuilder,
@@ -51,9 +53,17 @@ public final class Privat24Service implements Privat24 {
     @Override
     public ExchangeRateHistory getExchangeRatesForDate(LocalDate date, Currency currency) {
         ExchangeRateHistory exchangeRatesForDate = getExchangeRatesForDate(date);
-        exchangeRatesForDate.getExchangeRates()
-                .removeIf(exchangeRate -> !exchangeRate.getCurrency().equals(currency.name()));
-        return exchangeRatesForDate;
+
+        List<ExchangeRateHistoryCurrency> ccyHistory = exchangeRatesForDate.getExchangeRates().stream()
+                .filter(exchangeRate -> exchangeRate.getCurrency().equals(currency.name()))
+                .collect(Collectors.toList());
+
+        return new ExchangeRateHistory(
+                exchangeRatesForDate.getDate(),
+                exchangeRatesForDate.getBank(),
+                exchangeRatesForDate.getBaseCurrency(),
+                exchangeRatesForDate.getBaseCurrencyLit(),
+                ccyHistory);
     }
 
     @Override

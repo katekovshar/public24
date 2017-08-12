@@ -1,7 +1,9 @@
 package com.voidaspect.public24.service.p24;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  * @author mikhail.h
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public final class ExchangeRateHistory {
 
     private LocalDate date;
