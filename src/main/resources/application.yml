@@ -9,6 +9,12 @@ privat24:
   format: json
 ---
 spring:
+  profiles: prod
+logging:
+  level:
+    com.voidaspect.public24: error
+---
+spring:
   profiles: dev
 logging:
   level:
