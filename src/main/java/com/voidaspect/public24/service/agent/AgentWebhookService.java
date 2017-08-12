@@ -3,18 +3,16 @@ package com.voidaspect.public24.service.agent;
 import ai.api.model.Fulfillment;
 import ai.api.model.ResponseMessage;
 import com.voidaspect.public24.controller.AiWebhookRequest;
-import com.voidaspect.public24.service.p24.*;
 import com.voidaspect.public24.service.p24.Currency;
+import com.voidaspect.public24.service.p24.*;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.voidaspect.public24.service.agent.RequestParams.*;
@@ -26,18 +24,6 @@ public final class AgentWebhookService implements AgentWebhook {
     private static final String SOURCE = "Privat24 API";
 
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
-
-    private static final Function<CurrentExchangeRate, String> CURRENT_EXCHANGE_RATE_STRING_FUNCTION =
-            e -> getExchangeRateDescription(
-                    e.getCurrency(),
-                    e.getBuyRate(),
-                    e.getSaleRate());
-
-    private static final Function<ExchangeRateHistoryCurrency, String> EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION =
-            e -> getExchangeRateDescription(
-                    e.getCurrency(),
-                    Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
-                    Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB));
 
     private final Privat24 privat24;
 
@@ -53,7 +39,7 @@ public final class AgentWebhookService implements AgentWebhook {
 
         val fulfillment = new Fulfillment();
         val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
-        val currency = Currency.getByName(currencyCode);
+        Optional<Currency> currency = Currency.getByName(currencyCode);
         List<String> messages = new ArrayList<>();
         switch (intent) {
             case CURRENT_EXCHANGE_RATE:
@@ -66,18 +52,19 @@ public final class AgentWebhookService implements AgentWebhook {
                                 .orElseGet(Collections::emptyList))
                         .orElseGet(() -> privat24.getCurrentExchangeRates(exchangeRateType))
                         .stream()
-                        .map(CURRENT_EXCHANGE_RATE_STRING_FUNCTION)
+                        .map(e -> getExchangeRateDescription(
+                                e.getCurrency(),
+                                e.getBuyRate(),
+                                e.getSaleRate()))
                         .collect(Collectors.toList()));
                 validateExchangeCourseMessageList(messages,
-                        "No exchange rate found for current date " +
-                                currency.map(c -> "and currency " + c + ".")
+                        "No exchange rate found for current date" +
+                                currency.map(c -> " and currency " + c + ".")
                                         .orElse("."));
                 break;
             case EXCHANGE_RATE_HISTORY:
-                val localDate = Optional.ofNullable(incompleteResult.getDateParameter(DATE.getName()))
-                        .orElseGet(Date::new)
-                        .toInstant()
-                        .atZone(ZONE_ID).toLocalDate();
+                val localDate = incompleteResult.getDateParameter(DATE.getName(), new Date())
+                        .toInstant().atZone(ZONE_ID).toLocalDate();
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
                 log.debug("Retrieving currency exchange history for date {} and {} ccy", isoDate,
                         currency.map(Enum::name).orElse("unspecified"));
@@ -88,7 +75,10 @@ public final class AgentWebhookService implements AgentWebhook {
                         .orElseGet(() -> privat24.getExchangeRatesForDate(localDate)
                                 .getExchangeRates())
                         .stream()
-                        .map(EXCHANGE_RATE_HISTORY_CURRENCY_STRING_FUNCTION)
+                        .map(e -> getExchangeRateDescription(
+                                e.getCurrency(),
+                                Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
+                                Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB)))
                         .collect(Collectors.toList()));
                 validateExchangeCourseMessageList(messages,
                         "No exchange rate history found for date " + isoDate +
