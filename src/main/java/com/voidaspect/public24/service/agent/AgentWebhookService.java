@@ -10,6 +10,7 @@ import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -112,8 +113,17 @@ public final class AgentWebhookService implements AgentWebhook {
     }
 
     private static String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
-        return currencyCode + ": purchase = " + purchase.toPlainString() + " sale = " + sale.toPlainString();
+        return currencyCode +
+                ": purchase = " + formatCurrency(purchase)
+                + " sale = " + formatCurrency(sale);
     }
 
 
+    private static String formatCurrency(BigDecimal value) {
+        BigDecimal bigDecimal = value.stripTrailingZeros();
+        if (bigDecimal.scale() < 2) {
+            bigDecimal = bigDecimal.setScale(2, BigDecimal.ROUND_UNNECESSARY);
+        }
+        return bigDecimal.toPlainString();
+    }
 }
