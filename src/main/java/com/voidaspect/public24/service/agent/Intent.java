@@ -1,5 +1,6 @@
 package com.voidaspect.public24.service.agent;
 
+import com.voidaspect.public24.controller.BadWebhookRequestException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -17,7 +18,7 @@ enum Intent {
         return Arrays.stream(values())
                 .filter(intent -> compareIgnoreCaseAndSpaces(intent.name, name))
                 .findAny()
-                .orElseThrow(() -> new UnsupportedOperationException(
+                .orElseThrow(() -> new BadWebhookRequestException(
                         "Unable to resolve intent name: " + name));
     }
 
