@@ -21,8 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/api-ai/**").hasRole("USER")
-                .and().httpBasic().realmName("PUB24")
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .and().httpBasic().realmName("PUB24");
     }
 
     @Override
