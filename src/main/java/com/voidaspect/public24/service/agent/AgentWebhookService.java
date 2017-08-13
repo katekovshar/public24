@@ -88,9 +88,14 @@ public final class AgentWebhookService implements AgentWebhook {
             default:
                 throw new IllegalStateException("Unreachable statement");
         }
-        val responseSpeech = new ResponseMessage.ResponseSpeech();
-        responseSpeech.setSpeech(messages);
-        fulfillment.setMessages(responseSpeech);
+        List<ResponseMessage> responseSpeechList = messages.stream()
+                .map(m -> {
+                    val responseSpeech = new ResponseMessage.ResponseSpeech();
+                    responseSpeech.setSpeech(m);
+                    return responseSpeech;
+                })
+                .collect(Collectors.toList());
+        fulfillment.setMessages(responseSpeechList);
         fulfillment.setSource(SOURCE);
         return fulfillment;
     }
