@@ -95,6 +95,9 @@ public final class AgentWebhookService implements AgentWebhook {
                     return responseSpeech;
                 })
                 .collect(Collectors.toList());
+        String speech = messages.stream()
+                .collect(Collectors.joining("\n"));
+        fulfillment.setSpeech(speech);
         fulfillment.setMessages(responseSpeechList);
         fulfillment.setSource(SOURCE);
         return fulfillment;
