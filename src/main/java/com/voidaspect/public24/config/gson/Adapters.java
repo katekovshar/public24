@@ -1,5 +1,6 @@
 package com.voidaspect.public24.config.gson;
 
+import ai.api.GsonFactory;
 import ai.api.model.ResponseMessage;
 import com.google.gson.*;
 
@@ -12,7 +13,7 @@ import java.time.format.DateTimeFormatter;
  */
 final class Adapters {
 
-    private static final Gson DEFAULT_GSON = new GsonBuilder().create();
+    private static final Gson DEFAULT_GSON = GsonFactory.getDefaultFactory().getGson();
 
     /**
      * Disallow instantiation
@@ -25,99 +26,51 @@ final class Adapters {
             JsonSerializer<T> {
     }
 
-    static TypeSerializationAdapter<LocalDate> getLocalDateAdapter(DateTimeFormatter dateTimeFormatter) {
-        return new LocalDateAdapter(dateTimeFormatter);
+    static <T> ApiAiSerializationAdapter<T> getAdapter() {
+        return new ApiAiSerializationAdapter<>();
     }
 
-    static TypeSerializationAdapter<ResponseMessage.Platform> getResponseMessagePlatformAdapter() {
-        return RESPONSE_MESSAGE_PLATFORM;
+
+    static TypeSerializationAdapter<ResponseMessage.ResponseSpeech> getResponseSpeechAdapter() {
+        return new ResponseSpeechAdapter();
     }
 
-    static TypeSerializationAdapter<ResponseMessage.MessageType> getResponseMessageTypeAdapter() {
-        return RESPONSE_MESSAGE_TYPE;
+    static TypeSerializationAdapter<LocalDate> getLocalDateAdapter(DateTimeFormatter formatter) {
+        return new LocalDateAdapter(formatter);
     }
 
-    static TypeSerializationAdapter<ResponseMessage> getResponseMessageAdapter() {
-        return RESPONSE_MESSAGE;
+    private static final class ApiAiSerializationAdapter<T> extends TypeSerializationAdapter<T> {
+
+        @Override
+        public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            return DEFAULT_GSON.fromJson(json, typeOfT);
+        }
+
+        @Override
+        public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+            return DEFAULT_GSON.toJsonTree(src, typeOfSrc);
+        }
     }
+    private static class ResponseSpeechAdapter extends TypeSerializationAdapter<ResponseMessage.ResponseSpeech> {
 
-    static JsonDeserializer<ResponseMessage.ResponseSpeech> getResponseMessageSpeechDeserializer() {
-        return RESPONSE_MESSAGE_SPEECH;
+        public ResponseMessage.ResponseSpeech deserialize(JsonElement json, Type typeOfT,
+                                                          JsonDeserializationContext context) throws JsonParseException {
+
+            return DEFAULT_GSON.fromJson(json, typeOfT);
+        }
+
+        @Override
+        public JsonElement serialize(ResponseMessage.ResponseSpeech src, Type typeOfSrc, JsonSerializationContext context) {
+
+            JsonElement json = DEFAULT_GSON.toJsonTree(src, ResponseMessage.class);
+            JsonObject asJsonObject = json.getAsJsonObject();
+            JsonArray speech = asJsonObject.getAsJsonArray("speech");
+            if (speech.size() == 1) {
+                asJsonObject.addProperty("speech", speech.get(0).getAsString());
+            }
+            return json;
+        }
     }
-
-    private static final TypeSerializationAdapter<ResponseMessage.Platform> RESPONSE_MESSAGE_PLATFORM =
-            new TypeSerializationAdapter<ResponseMessage.Platform>() {
-                @Override
-                public JsonElement serialize(ResponseMessage.Platform src, Type typeOfT, JsonSerializationContext context) {
-                    return context.serialize(src.getName());
-                }
-
-                @Override
-                public ResponseMessage.Platform deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                        throws JsonParseException {
-                    String name = json.getAsString();
-                    if (name == null) {
-                        return ResponseMessage.Platform.DEFAULT;
-                    }
-                    ResponseMessage.Platform result = ResponseMessage.Platform.fromName(name);
-                    if (result == null) {
-                        throw new JsonParseException(String.format("Unexpected platform name: %s", json));
-                    }
-                    return result;
-                }
-            };
-
-    private static final TypeSerializationAdapter<ResponseMessage.MessageType> RESPONSE_MESSAGE_TYPE =
-            new TypeSerializationAdapter<ResponseMessage.MessageType>() {
-                @Override
-                public JsonElement serialize(ResponseMessage.MessageType src, Type typeOfT, JsonSerializationContext context) {
-                    return context.serialize(src.getCode() <= 4 ? src.getCode() : src.getName());
-                }
-
-                @Override
-                public ResponseMessage.MessageType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                        throws JsonParseException {
-                    JsonPrimitive jsonValue = json.getAsJsonPrimitive();
-                    ResponseMessage.MessageType result;
-                    if (jsonValue.isNumber()) {
-                        result = ResponseMessage.MessageType.fromCode(jsonValue.getAsInt());
-                    } else {
-                        result = ResponseMessage.MessageType.fromName(jsonValue.getAsString());
-                    }
-                    if (result == null) {
-                        throw new JsonParseException(String.format("Unexpected message type value: %s", jsonValue));
-                    }
-                    return result;
-                }
-            };
-
-    private static final TypeSerializationAdapter<ResponseMessage> RESPONSE_MESSAGE =
-            new TypeSerializationAdapter<ResponseMessage>() {
-                @Override
-                public ResponseMessage deserialize(JsonElement json, Type typeOfT,
-                                                   JsonDeserializationContext context) throws JsonParseException {
-                    ResponseMessage.MessageType messageType = context.deserialize(json.getAsJsonObject().get("type"), ResponseMessage.MessageType.class);
-                    return context.deserialize(json, messageType.getType());
-                }
-
-                @Override
-                public JsonElement serialize(ResponseMessage src, Type typeOfSrc,
-                                             JsonSerializationContext context) {
-                    return context.serialize(src, src.getClass());
-                }
-            };
-
-    private static final JsonDeserializer<ResponseMessage.ResponseSpeech> RESPONSE_MESSAGE_SPEECH =
-            (json, typeOfT, context) -> {
-
-                if (json.isJsonObject() && ((JsonObject) json).get("speech").isJsonPrimitive()) {
-                    JsonArray array = new JsonArray();
-                    array.add(((JsonObject) json).get("speech"));
-                    ((JsonObject) json).add("speech", array);
-                }
-
-                return DEFAULT_GSON.fromJson(json, typeOfT);
-            };
 
     /**
      * @author mikhail.h
