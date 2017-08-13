@@ -1,5 +1,6 @@
 package com.voidaspect.public24.config.gson;
 
+import ai.api.model.GoogleAssistantResponseMessages;
 import ai.api.model.ResponseMessage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,10 +34,11 @@ public class GsonConfig {
     public Gson gson() {
         return new GsonBuilder()
                 .setDateFormat(DATE_FORMAT.toPattern())
-                .registerTypeAdapter(ResponseMessage.class, Adapters.getResponseMessageAdapter())
-                .registerTypeAdapter(ResponseMessage.MessageType.class, Adapters.getResponseMessageTypeAdapter())
-                .registerTypeAdapter(ResponseMessage.Platform.class, Adapters.getResponseMessagePlatformAdapter())
-                .registerTypeAdapter(ResponseMessage.ResponseSpeech.class, Adapters.getResponseMessageSpeechDeserializer())
+                .registerTypeAdapter(ResponseMessage.class, Adapters.getAdapter())
+                .registerTypeAdapter(ResponseMessage.MessageType.class, Adapters.getAdapter())
+                .registerTypeAdapter(ResponseMessage.Platform.class, Adapters.getAdapter())
+                .registerTypeAdapter(ResponseMessage.ResponseSpeech.class, Adapters.getResponseSpeechAdapter())
+                .registerTypeAdapter(GoogleAssistantResponseMessages.ResponseChatBubble.class, Adapters.getAdapter())
                 .registerTypeAdapter(LocalDate.class, Adapters.getLocalDateAdapter(privat24DateFormat()))
                 .create();
     }
