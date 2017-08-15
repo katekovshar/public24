@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.voidaspect.public24.service.agent.RequestParams.*;
@@ -31,10 +31,10 @@ public final class AgentWebhookService implements AgentWebhook {
 
     private final ResponseFactory responseFactory;
 
-    private final NumberFormat currencyFormat;
+    private final Function<BigDecimal, String> currencyFormat;
 
     @Autowired
-    public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, NumberFormat currencyFormat) {
+    public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, Function<BigDecimal, String> currencyFormat) {
         this.privat24 = privat24;
         this.responseFactory = responseFactory;
         this.currencyFormat = currencyFormat;
@@ -104,12 +104,9 @@ public final class AgentWebhookService implements AgentWebhook {
 
     private String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
         return currencyCode +
-                ": purchase = " + formatCurrency(purchase)
-                + " sale = " + formatCurrency(sale);
+                ": purchase = " + currencyFormat.apply(purchase)
+                + " sale = " + currencyFormat.apply(sale);
     }
 
-    private String formatCurrency(BigDecimal value) {
-        return currencyFormat.format(value.stripTrailingZeros());
-    }
 
 }
