@@ -21,18 +21,44 @@ import java.util.stream.Collectors;
 
 import static com.voidaspect.public24.service.agent.RequestParams.*;
 
+/**
+ * {@link AgentWebhook} implementation which relies on:
+ * <ul>
+ * <li>{@link Privat24}
+ * <li>{@link ResponseFactory}
+ * </ul>
+ */
 @Service
 @Slf4j
 public final class AgentWebhookService implements AgentWebhook {
 
+    /**
+     * Id of a time zone (system default is used)
+     */
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
+    /**
+     * Privat24 API service
+     */
     private final Privat24 privat24;
 
+    /**
+     * Response data factory
+     */
     private final ResponseFactory responseFactory;
 
+    /**
+     * BigDecimal-to-String converter for currency values
+     */
     private final Function<BigDecimal, String> currencyFormat;
 
+    /**
+     * DI-managed constructor.
+     *
+     * @param privat24        value of {@link #privat24}
+     * @param responseFactory value of {@link #responseFactory}
+     * @param currencyFormat  value of {@link #currencyFormat}
+     */
     @Autowired
     public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, Function<BigDecimal, String> currencyFormat) {
         this.privat24 = privat24;
@@ -40,6 +66,9 @@ public final class AgentWebhookService implements AgentWebhook {
         this.currencyFormat = currencyFormat;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) {
         val incompleteResult = aiWebhookRequest.getResult();
@@ -102,6 +131,14 @@ public final class AgentWebhookService implements AgentWebhook {
         return fulfillment;
     }
 
+    /**
+     * Converts exchange rate data to message string
+     *
+     * @param currencyCode ccy code
+     * @param purchase     purchase value
+     * @param sale         sale value
+     * @return response message
+     */
     private String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
         return currencyCode +
                 ": purchase = " + currencyFormat.apply(purchase)

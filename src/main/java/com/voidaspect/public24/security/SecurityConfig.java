@@ -9,12 +9,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 /**
+ * Configuration bean for Spring Boot Security
+ *
  * @author mikhail.h
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Specifies basic auth for {@code /api-ai} endpoint
+     * <br>Uses {@link SessionCreationPolicy#STATELESS} and disables CSRF protection
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -25,6 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
+    /**
+     * Allows {@link HttpMethod#OPTIONS} for any URI
+     */
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()

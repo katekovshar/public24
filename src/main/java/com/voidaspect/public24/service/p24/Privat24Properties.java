@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * Configuration properties for Privat24 public API integration
  * @author mikhail.h
  */
 @Component
@@ -14,8 +15,14 @@ import org.springframework.stereotype.Component;
 @Setter
 public final class Privat24Properties {
 
+    /**
+     * URL of Privat24 API
+     */
     private String url;
 
+    /**
+     * Format of requests (usually json)
+     */
     private String format;
 
 }

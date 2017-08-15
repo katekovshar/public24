@@ -5,6 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
+ * DTO for exchange rate history for specific currency
  * @author mikhail.h
  */
 @Data

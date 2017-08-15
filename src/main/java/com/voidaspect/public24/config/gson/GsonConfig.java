@@ -15,14 +15,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
+ * Configuration bean for Json-related configs
+ *
  * @author mikhail.h
  */
 @Configuration
 public class GsonConfig {
 
+    /**
+     * Date format specification from API.AI {@link ai.api.GsonFactory}
+     */
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
+    /**
+     * Declares message converter used in this application
+     *
+     * @return message converter instance
+     */
     @Bean
     public GsonHttpMessageConverter gsonHttpMessageConverter() {
         val converter = new GsonHttpMessageConverter();
@@ -30,6 +40,11 @@ public class GsonConfig {
         return converter;
     }
 
+    /**
+     * Declares object mapper used in this application
+     * @return object mapper instance
+     * @see Adapters
+     */
     @Bean
     public Gson gson() {
         return new GsonBuilder()
@@ -43,6 +58,11 @@ public class GsonConfig {
                 .create();
     }
 
+    /**
+     * Declares date format used in privat24 API
+     * <br>For example: 04.10.2016
+     * @return date format specification
+     */
     @Bean
     public DateTimeFormatter privat24DateFormat() {
         return DateTimeFormatter.ofPattern("dd.MM.yyyy");

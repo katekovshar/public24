@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO for current exchange rate
+ */
 @Data
 public final class CurrentExchangeRate {
 

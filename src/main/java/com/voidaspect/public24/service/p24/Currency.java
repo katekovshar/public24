@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
+ * List of currency codes supported for requests
  * @author mikhail.h
  */
 public enum Currency {
@@ -34,6 +35,11 @@ public enum Currency {
 
     BTC;
 
+    /**
+     * Retrieves a constant by it's name
+     * @param currencyCode string value
+     * @return optional-wrapped {@link Currency} constant
+     */
     public static Optional<Currency> getByName(String currencyCode) {
         return Arrays.stream(values())
                 .filter(currency -> currency.name().equalsIgnoreCase(currencyCode))
