@@ -53,8 +53,8 @@ public class Privat24ServiceTest {
     @Before
     public void setUp() throws Exception {
         restServiceServer.reset();
-        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/exchange-rate.json"));
-        responseBodyCurrentExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/current-exchange-rate.json"));
+        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/exchange-rate.json"));
+        responseBodyCurrentExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/current-exchange-rate.json"));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class Privat24ServiceTest {
     @Test
     public void testGetExchangeRateForDate() throws Exception {
 
-        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/exchange-rate.json"));
+        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/exchange-rate.json"));
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
                 .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
 

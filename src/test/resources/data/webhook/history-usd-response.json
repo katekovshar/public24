@@ -1,0 +1,90 @@
+{
+  "speech": "Exchange rate for UAH on 2016-05-23\nAUD: purchase = 18.21868 sale = 18.21868\nCAD: purchase = 18.10 sale = 19.40\nCZK: purchase = 0.99 sale = 1.05\nDKK: purchase = 3.801744 sale = 3.801744\nHUF: purchase = 0.089253 sale = 0.089253\nILS: purchase = 6.10 sale = 6.60\nJPY: purchase = 0.21 sale = 0.23\nLVL: purchase = 0.2283626 sale = 0.2283626\nLTL: purchase = 5.570235 sale = 5.570235\nNOK: purchase = 2.80 sale = 3.10\nSKK: purchase = 3.028608 sale = 3.028608\nSEK: purchase = 3.021068 sale = 3.021068\nCHF: purchase = 24.00 sale = 25.60\nRUB: purchase = 0.37 sale = 0.38\nGBP: purchase = 35.00 sale = 37.00\nUSD: purchase = 25.10 sale = 25.25\nBYR: purchase = 0.00129 sale = 0.00129\nEUR: purchase = 28.10 sale = 28.32\nGEL: purchase = 11.296296 sale = 11.296296\nPLZ: purchase = 6.00 sale = 6.50",
+  "messages": [
+    {
+      "speech": "Exchange rate for UAH on 2016-05-23",
+      "type": 0
+    },
+    {
+      "speech": "AUD: purchase = 18.21868 sale = 18.21868",
+      "type": 0
+    },
+    {
+      "speech": "CAD: purchase = 18.10 sale = 19.40",
+      "type": 0
+    },
+    {
+      "speech": "CZK: purchase = 0.99 sale = 1.05",
+      "type": 0
+    },
+    {
+      "speech": "DKK: purchase = 3.801744 sale = 3.801744",
+      "type": 0
+    },
+    {
+      "speech": "HUF: purchase = 0.089253 sale = 0.089253",
+      "type": 0
+    },
+    {
+      "speech": "ILS: purchase = 6.10 sale = 6.60",
+      "type": 0
+    },
+    {
+      "speech": "JPY: purchase = 0.21 sale = 0.23",
+      "type": 0
+    },
+    {
+      "speech": "LVL: purchase = 0.2283626 sale = 0.2283626",
+      "type": 0
+    },
+    {
+      "speech": "LTL: purchase = 5.570235 sale = 5.570235",
+      "type": 0
+    },
+    {
+      "speech": "NOK: purchase = 2.80 sale = 3.10",
+      "type": 0
+    },
+    {
+      "speech": "SKK: purchase = 3.028608 sale = 3.028608",
+      "type": 0
+    },
+    {
+      "speech": "SEK: purchase = 3.021068 sale = 3.021068",
+      "type": 0
+    },
+    {
+      "speech": "CHF: purchase = 24.00 sale = 25.60",
+      "type": 0
+    },
+    {
+      "speech": "RUB: purchase = 0.37 sale = 0.38",
+      "type": 0
+    },
+    {
+      "speech": "GBP: purchase = 35.00 sale = 37.00",
+      "type": 0
+    },
+    {
+      "speech": "USD: purchase = 25.10 sale = 25.25",
+      "type": 0
+    },
+    {
+      "speech": "BYR: purchase = 0.00129 sale = 0.00129",
+      "type": 0
+    },
+    {
+      "speech": "EUR: purchase = 28.10 sale = 28.32",
+      "type": 0
+    },
+    {
+      "speech": "GEL: purchase = 11.296296 sale = 11.296296",
+      "type": 0
+    },
+    {
+      "speech": "PLZ: purchase = 6.00 sale = 6.50",
+      "type": 0
+    }
+  ],
+  "source": "Privat24 API"
+}

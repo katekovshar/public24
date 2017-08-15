@@ -1,0 +1,30 @@
+{
+  "id": "feb788b9-c28a-4ea7-aee3-3ec1f7a597c8",
+  "timestamp": "2017-08-13T13:08:30.499Z",
+  "lang": "en",
+  "result": {
+    "source": "agent",
+    "resolvedQuery": "How was USD 23.5.2016",
+    "action": "",
+    "actionIncomplete": false,
+    "parameters": {
+      "currency-name": "USD",
+      "date": "2016-05-23"
+    },
+    "contexts": [],
+    "metadata": {
+      "intentId": "49ad3bfd-3784-4e26-97cf-5cdae42f8e0b",
+      "webhookUsed": "true",
+      "webhookForSlotFillingUsed": "false",
+      "webhookResponseTime": 357,
+      "intentName": "Exchange Rate History"
+    },
+    "fulfillment": {},
+    "score": 1
+  },
+  "status": {
+    "code": 200,
+    "errorType": "success"
+  },
+  "sessionId": "1d17ee20-5d40-4f6f-81f9-41c84e6a8683"
+}
