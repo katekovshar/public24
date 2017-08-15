@@ -28,7 +28,7 @@ apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 
-version = '0.0.1-SNAPSHOT'
+version = '0.1'
 sourceCompatibility = 1.8
 
 repositories {
