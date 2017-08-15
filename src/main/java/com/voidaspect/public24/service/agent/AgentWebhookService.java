@@ -1,15 +1,19 @@
 package com.voidaspect.public24.service.agent;
 
 import ai.api.model.Fulfillment;
-import ai.api.model.ResponseMessage;
 import com.voidaspect.public24.controller.AiWebhookRequest;
+import com.voidaspect.public24.service.agent.response.ResponseFactory;
 import com.voidaspect.public24.service.p24.Currency;
-import com.voidaspect.public24.service.p24.*;
+import com.voidaspect.public24.service.p24.ExchangeRateHistory;
+import com.voidaspect.public24.service.p24.ExchangeRateType;
+import com.voidaspect.public24.service.p24.Privat24;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,14 +25,19 @@ import static com.voidaspect.public24.service.agent.RequestParams.*;
 @Slf4j
 public final class AgentWebhookService implements AgentWebhook {
 
-    private static final String SOURCE = "Privat24 API";
-
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
     private final Privat24 privat24;
 
-    public AgentWebhookService(Privat24 privat24) {
+    private final ResponseFactory responseFactory;
+
+    private final NumberFormat currencyFormat;
+
+    @Autowired
+    public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, NumberFormat currencyFormat) {
         this.privat24 = privat24;
+        this.responseFactory = responseFactory;
+        this.currencyFormat = currencyFormat;
     }
 
     @Override
@@ -37,12 +46,12 @@ public final class AgentWebhookService implements AgentWebhook {
         val intentName = incompleteResult.getMetadata().getIntentName();
         val intent = Intent.getByName(intentName);
 
-        val fulfillment = new Fulfillment();
         val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
         Optional<Currency> currency = Currency.getByName(currencyCode);
         List<String> messages = new ArrayList<>();
+        final Fulfillment fulfillment;
         switch (intent) {
-            case CURRENT_EXCHANGE_RATE:
+            case CURRENT_EXCHANGE_RATE: {
                 val exchangeRateTypeName = incompleteResult.getStringParameter(EXCHANGE_RATE_TYPE.getName(), ExchangeRateType.NON_CASH.getName());
                 val exchangeRateType = ExchangeRateType.getByName(exchangeRateTypeName);
                 messages.add("Current exchange rate for " + Currency.UAH);
@@ -57,12 +66,13 @@ public final class AgentWebhookService implements AgentWebhook {
                                 e.getBuyRate(),
                                 e.getSaleRate()))
                         .collect(Collectors.toList()));
-                validateExchangeCourseMessageList(messages,
-                        "No exchange rate found for current date" +
-                                currency.map(c -> " and currency " + c + ".")
-                                        .orElse("."));
+                String fallback = "No exchange rate found for current date" +
+                        currency.map(c -> " and currency " + c + ".")
+                                .orElse(".");
+                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
                 break;
-            case EXCHANGE_RATE_HISTORY:
+            }
+            case EXCHANGE_RATE_HISTORY: {
                 val localDate = incompleteResult.getDateParameter(DATE.getName(), new Date())
                         .toInstant().atZone(ZONE_ID).toLocalDate();
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
@@ -80,48 +90,26 @@ public final class AgentWebhookService implements AgentWebhook {
                                 Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
                                 Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB)))
                         .collect(Collectors.toList()));
-                validateExchangeCourseMessageList(messages,
-                        "No exchange rate history found for date " + isoDate +
-                                currency.map(c -> " and currency " + c + ".")
-                                        .orElse("."));
+                String fallback = "No exchange rate history found for date " + isoDate +
+                        currency.map(c -> " and currency " + c + ".")
+                                .orElse(".");
+                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
                 break;
+            }
             default:
                 throw new IllegalStateException("Unreachable statement");
         }
-        List<ResponseMessage> responseSpeechList = messages.stream()
-                .map(m -> {
-                    val responseSpeech = new ResponseMessage.ResponseSpeech();
-                    responseSpeech.setSpeech(m);
-                    return responseSpeech;
-                })
-                .collect(Collectors.toList());
-        String speech = messages.stream()
-                .collect(Collectors.joining("\n"));
-        fulfillment.setSpeech(speech);
-        fulfillment.setMessages(responseSpeechList);
-        fulfillment.setSource(SOURCE);
         return fulfillment;
     }
 
-    private void validateExchangeCourseMessageList(List<String> messages, String message) {
-        if (messages.size() <= 1) {
-            messages.clear();
-            messages.add(message);
-        }
-    }
-
-    private static String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
+    private String getExchangeRateDescription(String currencyCode, BigDecimal purchase, BigDecimal sale) {
         return currencyCode +
                 ": purchase = " + formatCurrency(purchase)
                 + " sale = " + formatCurrency(sale);
     }
 
-
-    private static String formatCurrency(BigDecimal value) {
-        BigDecimal bigDecimal = value.stripTrailingZeros();
-        if (bigDecimal.scale() < 2) {
-            bigDecimal = bigDecimal.setScale(2, BigDecimal.ROUND_UNNECESSARY);
-        }
-        return bigDecimal.toPlainString();
+    private String formatCurrency(BigDecimal value) {
+        return currencyFormat.format(value.stripTrailingZeros());
     }
+
 }

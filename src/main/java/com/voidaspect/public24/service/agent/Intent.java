@@ -1,11 +1,13 @@
 package com.voidaspect.public24.service.agent;
 
 import com.voidaspect.public24.controller.BadWebhookRequestException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 
 @RequiredArgsConstructor
+@Getter
 enum Intent {
 
     CURRENT_EXCHANGE_RATE("Current Exchange Rate"),
