@@ -1,5 +1,10 @@
+html {
+  height: 100%
+}
+
 body {
   background: #F5F5F5;
+  height: 100%
 }
 
 .branding {
@@ -14,14 +19,8 @@ body {
 
 .showcase h1 {
   font-size: 40px;
-  font-weight:700;
+  font-weight: 700;
   text-transform: uppercase;
-}
-
-.showcase hr {
-  width: 100px;
-  margin: auto;
-  border: 3px black;
 }
 
 .showcase p {
@@ -33,8 +32,8 @@ body {
 
 .section {
   padding: 10px 0;
-  height:100%;
-	width:100%;
+  height: 100%;
+  width: 100%;
 }
 
 .midsection {
@@ -42,29 +41,28 @@ body {
 }
 
 .midsection h1 {
-  margin: -10px;
-}
-
-.midsection h1 {
   text-align: center;
+  margin-top: -10px;
 }
 
 .iframe-fix {
-  width:400;
-  height:500;
+  height: 460px;
 }
 
 iframe {
-  display:block;
+  display: block;
   padding-left: 30px;
   padding-right: 30px;
-  border: 0;
-  width:100%;
-  height:68vh;
+  border: 0px;
+  width: 100%;
+  height: 100%;
 }
 
 footer {
-  position: fixed; /* Set the navbar to fixed position */
-  bottom: 0; /* Position the navbar at the top of the page */
-  width: 100%; /* Full width */
+  position: fixed;
+  /* Set the navbar to fixed position */
+  bottom: 0;
+  /* Position the navbar at the top of the page */
+  width: 100%;
+  /* Full width */
 }
