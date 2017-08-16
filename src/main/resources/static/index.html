@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body onresize="setIFrameSize()" onload="setIFrameSize()">
 
   <div class="w3-bar w3-black">
     <span class="branding w3-bar-item w3-mobile">Home</span>
@@ -28,11 +28,10 @@
   <section class="midsection">
     <div class="w3-row-padding w3-padding-64 w3-container" style="margin-bottom: 30px;">
       <div class="w3-content">
-        <div class="w3-half">
+        <div id="midtext" class="w3-half" style="border: 3px">
           <h1>Welcome to our demo!</h1>
-          <h5 class="w3-padding-4">This is a limited demo of our brand new chat bot: Public 24. 
-            This app provides an interface to PrivatBank <a href="https://api.privatbank.ua/" target="_blank">API</a>.
-            It's developed as an open-source pet project by:
+          <h5 class="w3-padding-4">This is a limited demo of our brand new chat bot: Public 24. This app provides an interface to PrivatBank <a href="https://api.privatbank.ua/"
+              target="_blank">API</a>. It's developed as an open-source pet project by:
             <ul>
               <li>Kate Kovshar and Michael Horbunov (server side and API.AI)</li>
               <li>Alexander Horbunov (front-end).</li>
@@ -47,8 +46,8 @@
           </p>
         </div>
 
-        <div class="w3-half w3-center">
-          <div class="iframe-fix">
+        <div id="midiframe" class="w3-half">
+          <div id="iframe-fix" class="iframe-fix">
             <iframe id="api-iframe" src="https://console.api.ai/api-client/demo/embedded/d28419eb-d1f8-4d11-bec9-6fc9b6bb9a81"></iframe>
           </div>
         </div>
@@ -63,6 +62,12 @@
       <img border="0" alt="github" src="img/github-9-64.gif" width="32" height="32">
     </a>
   </footer>
+
+  <script>
+    function setIFrameSize() {
+        document.getElementById("iframe-fix").style.height = `${document.getElementById("midtext").offsetHeight}px`
+      }
+  </script>
 
 </body>
 

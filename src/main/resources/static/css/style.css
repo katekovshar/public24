@@ -66,3 +66,11 @@ footer {
   width: 100%;
   /* Full width */
 }
+
+@media only screen and (max-width: 600px) {
+  /* For mobile phones: */
+  iframe {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
