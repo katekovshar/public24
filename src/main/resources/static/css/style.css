@@ -1,0 +1,70 @@
+body {
+    background: #F5F5F5;
+}
+
+.branding {
+  font-size: 17px;
+}
+
+.showcase {
+  height: 140px;
+  padding: 140px, 100px;
+  background-color: #FD7500;
+}
+
+.showcase h1 {
+  font-size: 40px;
+  font-weight:700;
+  text-transform: uppercase;
+}
+
+.showcase hr {
+  width: 100px;
+  margin: auto;
+  border: 3px border-style black;
+}
+
+.showcase p {
+  font-size: 16px;
+  padding-bottom: 20px;
+  color: whitesmoke;
+  font-weight: bold;
+}
+
+.section {
+  padding: 10px 0;
+  height:100%;
+	width:100%;
+}
+
+.midsection {
+  text-align: justify;
+}
+
+.midsection h1 {
+  margin: -10px;
+}
+
+.midsection h1 {
+  text-align: center;
+}
+
+.iframe-fix {
+  width:400;
+  height:500;
+}
+
+iframe {
+  display:block;
+  padding-left: 30px;
+  padding-right: 30px;
+  border: 0px;
+  width:100%;
+  height:68vh;
+}
+
+footer {
+  position: fixed; /* Set the navbar to fixed position */
+  bottom: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+}
