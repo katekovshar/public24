@@ -64,9 +64,16 @@
   </footer>
 
   <script>
+    var resize;
+    window.addEventListener('resize', resize);
     function setIFrameSize() {
-        document.getElementById("iframe-fix").style.height = `${document.getElementById("midtext").offsetHeight}px`
+      if (window.innerWidth < 600) {
+        document.getElementById("iframe-fix").style.height = 600;
       }
+      else {
+        document.getElementById("iframe-fix").style.height = `${document.getElementById("midtext").offsetHeight}px`;
+      }
+    }
   </script>
 
 </body>
