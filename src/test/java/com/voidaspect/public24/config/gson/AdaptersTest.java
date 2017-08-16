@@ -1,9 +1,7 @@
 package com.voidaspect.public24.config.gson;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.assertEquals;
 
