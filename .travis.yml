@@ -22,3 +22,7 @@ deploy:
   on:
     repo: katekovshar/public24
     branch: master
+branches:
+  only:
+  - master
+  - next
