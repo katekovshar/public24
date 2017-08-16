@@ -24,16 +24,7 @@ import static org.junit.Assert.assertEquals;
 public class AdaptersTest {
 
     @Autowired
-    DateTimeFormatter dateTimeFormatter;
-
     private Gson gson;
-
-    @Before
-    public void setUp() throws Exception {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, Adapters.getLocalDateAdapter(dateTimeFormatter))
-                .create();
-    }
 
     @Test
     public void mustSerializeInFormat_ddmmyyyy() throws Exception {
