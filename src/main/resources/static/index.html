@@ -1,10 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Public 24</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public 24</title>
+  <link rel="stylesheet" href="css/w3.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<h1 align="center">Public 24 server is running</h1>
+
+  <div class="w3-bar w3-black">
+    <span class="branding w3-bar-item w3-mobile">Home</span>
+    <span class="w3-right w3-mobile">
+    <a href="https://telegram.me/public24_bot" class="w3-bar-item w3-button w3-mobile" target="_blank">Telegram</a>
+    </span>
+  </div>
+
+  <section class="showcase">
+    <div class="w3-container w3-center">
+      <h1 class="w3-animate-opacity">Public 24</h1>
+      <p class="w3-animate-opacity">Your very own public servant</p>
+    </div>
+  </section>
+
+  <section class="midsection">
+    <div class="w3-row-padding w3-padding-64 w3-container" style="margin-bottom: 30px;">
+      <div class="w3-content">
+        <div class="w3-half">
+          <h1>Welcome to our demo!</h1>
+          <h5 class="w3-padding-4">This is a limited demo of our brand new chat bot: Public 24. 
+            This app provides an interface to PrivatBank <a href="https://api.privatbank.ua/" target="_blank">API</a>.
+            It's developed as an open-source pet project by:
+            <ul>
+              <li>Kate Kovshar and Michael Horbunov (server side and API.AI)</li>
+              <li>Alexander Horbunov (front-end).</li>
+            </ul>
+          </h5>
+          <p class="w3-text-grey">Current features of this bot (v 0.1) include:
+            <ul>
+              <li class="w3-text-grey">"Current Exchange Rate" - returns current exchange rate. Is available for cash and non-cash transactions (non-cash
+                by default). Request example: <b>Current cash exchange for USD.</b> </li>
+              <li class="w3-text-grey">"Exchange Rate History" - returns exchange rate history for inputted data. Request example: <b>CAD for 23/5/2001.</b></li>
+            </ul>
+          </p>
+        </div>
+
+        <div class="w3-half w3-center">
+          <div class="iframe-fix">
+            <iframe id="api-iframe" src="https://console.api.ai/api-client/demo/embedded/d28419eb-d1f8-4d11-bec9-6fc9b6bb9a81"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="w3-center w3-black w3-padding-8">
+    <!--<p>Text text text</p>-->
+    <a href="https://github.com/katekovshar/public24" target="_blank">
+      <img border="0" alt="github" src="img/github-9-64.gif" width="32" height="32">
+    </a>
+  </footer>
+
 </body>
+
 </html>
