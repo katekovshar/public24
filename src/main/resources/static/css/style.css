@@ -1,5 +1,5 @@
 body {
-    background: #F5F5F5;
+  background: #F5F5F5;
 }
 
 .branding {
@@ -8,7 +8,7 @@ body {
 
 .showcase {
   height: 140px;
-  padding: 140px, 100px;
+  padding: 10px 100px;
   background-color: #FD7500;
 }
 
@@ -21,7 +21,7 @@ body {
 .showcase hr {
   width: 100px;
   margin: auto;
-  border: 3px border-style black;
+  border: 3px black;
 }
 
 .showcase p {
@@ -58,7 +58,7 @@ iframe {
   display:block;
   padding-left: 30px;
   padding-right: 30px;
-  border: 0px;
+  border: 0;
   width:100%;
   height:68vh;
 }
