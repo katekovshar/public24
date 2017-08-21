@@ -6,12 +6,14 @@ import java.util.Optional;
 
 /**
  * Service for Privat24 API interactions
+ *
  * @author mikhail.h
  */
 public interface Privat24 {
 
     /**
      * Retrieves exchange rates for given date
+     *
      * @param date date used in request to Privat24 API
      * @return exchange rate history for specified date
      */
@@ -19,14 +21,16 @@ public interface Privat24 {
 
     /**
      * Retrieves exchange rates for given date and specified currency
-     * @param date {@link LocalDate} date used in request to Privat24 API
-     * @param currency {@link Currency}
+     *
+     * @param date     {@link LocalDate} date used in request to Privat24 API
+     * @param currency {@link Currency} code used in request
      * @return exchange rate history for specified date and currency
      */
     ExchangeRateHistory getExchangeRatesForDate(LocalDate date, Currency currency);
 
     /**
      * Retrieves exchange rates for current date
+     *
      * @param exchangeRateType cash and non-cash
      * @return {@link CurrentExchangeRate}
      * @see ExchangeRateType
@@ -35,8 +39,9 @@ public interface Privat24 {
 
     /**
      * Retrieves exchange rates for current date and specified currency
+     *
      * @param exchangeRateType cash and non-cash
-     * @param currency
+     * @param currency         {@link Currency} code used in request
      * @return optional-wrapped {@link CurrentExchangeRate}
      * @see ExchangeRateType
      */

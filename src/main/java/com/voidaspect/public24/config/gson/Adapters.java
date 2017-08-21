@@ -32,7 +32,7 @@ final class Adapters {
      * Abstract facade for serializer and deserializer
      * @param <T> type of an object to be serialized
      */
-    static abstract class TypeSerializationAdapter<T> implements
+    interface TypeSerializationAdapter<T> extends
             JsonDeserializer<T>,
             JsonSerializer<T> {
     }
@@ -68,7 +68,7 @@ final class Adapters {
      * @param <T> type of an object to be serialized
      * @see GsonFactory
      */
-    private static final class ApiAiSerializationAdapter<T> extends TypeSerializationAdapter<T> {
+    private static final class ApiAiSerializationAdapter<T> implements TypeSerializationAdapter<T> {
 
         /**
          * {@inheritDoc}
@@ -91,7 +91,7 @@ final class Adapters {
      * Custom type adapter for API.AI {@link ai.api.model.ResponseMessage.ResponseSpeech}
      * Provides a workaround for {@link ResponseMessage} serialization
      */
-    private static class ResponseSpeechAdapter extends TypeSerializationAdapter<ResponseMessage.ResponseSpeech> {
+    private static class ResponseSpeechAdapter implements TypeSerializationAdapter<ResponseMessage.ResponseSpeech> {
 
         /**
          * {@inheritDoc}
@@ -124,7 +124,7 @@ final class Adapters {
      * @author mikhail.h
      */
     @RequiredArgsConstructor
-    private static final class LocalDateAdapter extends TypeSerializationAdapter<LocalDate> {
+    private static final class LocalDateAdapter implements TypeSerializationAdapter<LocalDate> {
 
         /**
          * Format specification used in serialisation

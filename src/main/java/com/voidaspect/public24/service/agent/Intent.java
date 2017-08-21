@@ -1,7 +1,6 @@
 package com.voidaspect.public24.service.agent;
 
 import com.voidaspect.public24.controller.BadWebhookRequestException;
-import com.voidaspect.public24.service.p24.Currency;
 import com.voidaspect.public24.service.p24.ExchangeRateType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
