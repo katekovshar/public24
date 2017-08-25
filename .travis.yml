@@ -1,4 +1,5 @@
 language: java
+install: echo "skip 'gradle assemble' step"
 script: gradle build --continue
 before_install:
 - chmod +x gradlew
