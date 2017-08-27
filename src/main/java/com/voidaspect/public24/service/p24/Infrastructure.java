@@ -1,38 +1,16 @@
 package com.voidaspect.public24.service.p24;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.List;
 
 @Data
-public class Infrastructure {
+public final class Infrastructure {
 
-    @SerializedName("type")
-    private String deviceType;
+    private String city;
 
-    private String PlaceRu;
+    private String address;
 
-    private String fullAddressRu;
-
-    private String placeUa;
-
-    private String fullAddressUa;
-
-    private String fullAddressEn;
-
-    private String cityRU;
-
-    private String cityUA;
-
-    private String cityEN;
-
-    private BigDecimal latitude;
-
-    private BigDecimal longitude;
-
-    @SerializedName("tw")
-    private HashMap<String, String> workSchedule;
+    private List<Device> devices;
 
 }

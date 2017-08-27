@@ -111,18 +111,18 @@ public final class Privat24Service implements Privat24 {
     }
 
     @Override
-    public List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName) {
+    public Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName) {
         return getInfrastructureLocations(deviceType, cityName, "");
     }
 
     @Override
-    public List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName, String address) {
+    public Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName, String address) {
         val uri = getInfrastructureRequestBuilder(deviceType)
                 .queryParam("city", cityName)
                 .queryParam("address", address)
                 .build().toUri();
         log.debug("GET Request to p24 api: {}", uri);
-        return Arrays.asList(restTemplate.getForObject(uri, Infrastructure[].class));
+        return restTemplate.getForObject(uri, Infrastructure.class);
     }
 
     private UriComponentsBuilder getInfrastructureRequestBuilder(DeviceType deviceType) {

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -46,21 +47,21 @@ public class Privat24ServiceTest {
     @Autowired
     private Gson gson;
 
-    private String responseBodyExchangeRate;
+    private final String responseBodyExchangeRate =
+            Tests.loadTestResourceAsString("/data/p24/exchange-rate.json");
 
-    private String responseBodyCurrentExchangeRate;
+    private final String responseBodyCurrentExchangeRate =
+            Tests.loadTestResourceAsString("/data/p24/current-exchange-rate.json");
 
     @Before
     public void setUp() throws Exception {
         restServiceServer.reset();
-        responseBodyExchangeRate = Tests.loadTestResourceAsString("/data/p24/exchange-rate.json");
-        responseBodyCurrentExchangeRate = Tests.loadTestResourceAsString("/data/p24/current-exchange-rate.json");
     }
 
     @Test
     public void testGetCurrentRate() throws Exception {
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5")))
-                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON_UTF8));
         List<CurrentExchangeRate> currentExchangeRates = privat24Service.getCurrentExchangeRates(ExchangeRateType.CASH);
         restServiceServer.verify();
         List<CurrentExchangeRate> expected = Arrays.asList(gson.fromJson(responseBodyCurrentExchangeRate, CurrentExchangeRate[].class));
@@ -69,7 +70,7 @@ public class Privat24ServiceTest {
         restServiceServer.reset();
 
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=11")))
-                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON_UTF8));
         List<CurrentExchangeRate> currentExchangeRatesNonCash = privat24Service.getCurrentExchangeRates(ExchangeRateType.NON_CASH);
         restServiceServer.verify();
         List<CurrentExchangeRate> expectedNonCash = Arrays.asList(gson.fromJson(responseBodyCurrentExchangeRate, CurrentExchangeRate[].class));
@@ -80,7 +81,7 @@ public class Privat24ServiceTest {
     @DirtiesContext
     public void testGetCurrentRateForCurrency() throws Exception {
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=11")))
-                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON_UTF8));
 
         String json = "{\n" +
                 "    \"ccy\":\"USD\",\n" +
@@ -100,9 +101,8 @@ public class Privat24ServiceTest {
 
     @Test
     public void testGetExchangeRateForDate() throws Exception {
-        responseBodyExchangeRate = Tests.loadTestResourceAsString("/data/p24/exchange-rate.json");
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
-                .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON_UTF8));
 
         ExchangeRateHistory exchangeRatesForDate = privat24Service.getExchangeRatesForDate(LocalDate.now());
         restServiceServer.verify();
@@ -113,7 +113,7 @@ public class Privat24ServiceTest {
     @DirtiesContext
     public void testGetExchangeRateForDateAndCurrency() throws Exception {
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
-                .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON_UTF8));
 
         ExchangeRateHistory exchangeRate = privat24Service.getExchangeRatesForDate(LocalDate.now(), Currency.USD);
 
@@ -134,4 +134,24 @@ public class Privat24ServiceTest {
                 "}";
         assertEquals(gson.fromJson(json, ExchangeRateHistory.class), exchangeRate);
     }
+
+    @Test
+    public void testGetInfrastructureLocation_atm_Kharkiv() throws Exception {
+        String responseBody = Tests.loadTestResourceAsString("/data/p24/infrastructure-atm-kharkiv.json");
+
+        restServiceServer.expect(requestTo("https://api.privatbank.ua/p24api/infrastructure?json&atm&city=Kharkiv&address="))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON_UTF8));
+
+        Infrastructure infrastructureLocations = privat24Service.getInfrastructureLocations(DeviceType.ATM, "Kharkiv");
+
+        restServiceServer.verify();
+
+        assertEquals("Kharkiv", infrastructureLocations.getCity());
+        assertEquals("", infrastructureLocations.getAddress());
+
+        infrastructureLocations.getDevices()
+                .forEach(device -> assertSame(DeviceType.ATM, device.getDeviceType()));
+
+    }
+
 }
