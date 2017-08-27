@@ -8,6 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,6 +26,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public final class Privat24Service implements Privat24 {
+
+    /**
+     * Charset used in encoding operations
+     */
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
 
     /**
      * Http client instance
@@ -123,18 +134,23 @@ public final class Privat24Service implements Privat24 {
      */
     @Override
     public Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName, String address) {
-        val uri = getInfrastructureRequestBuilder(deviceType)
-                .queryParam("city", cityName)
-                .queryParam("address", address)
-                .build().toUri();
+        val infrastructureRequestBuilder = getUriComponentsBuilder()
+                .path("/infrastructure")
+                .queryParam(deviceType.name().toLowerCase());
+        val uri = populateLocationQueryParams(infrastructureRequestBuilder, cityName, address);
         log.debug("GET Request to p24 api: {}", uri);
         return restTemplate.getForObject(uri, Infrastructure.class);
     }
 
-    private UriComponentsBuilder getInfrastructureRequestBuilder(DeviceType deviceType) {
-        return getUriComponentsBuilder()
-                .path("/infrastructure")
-                .queryParam(deviceType.name().toLowerCase());
+    private URI populateLocationQueryParams(UriComponentsBuilder infrastructureRequestBuilder, String cityName, String address)  {
+        try {
+            return infrastructureRequestBuilder
+                    .queryParam("city", URLEncoder.encode(cityName, CHARSET.displayName()))
+                    .queryParam("address", URLEncoder.encode(address, CHARSET.displayName()))
+                    .build().encode().toUri();
+        } catch (UnsupportedEncodingException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**
