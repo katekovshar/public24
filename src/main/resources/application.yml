@@ -15,6 +15,12 @@ logging:
     com.voidaspect.public24: error
 ---
 spring:
+  profiles: staging
+logging:
+  level:
+    com.voidaspect.public24: debug
+---
+spring:
   profiles: dev
 logging:
   level:
