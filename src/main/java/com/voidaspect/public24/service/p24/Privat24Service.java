@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -42,8 +41,6 @@ public final class Privat24Service implements Privat24 {
      */
     private final Map<LocalDate, ExchangeRateHistory> exchangeHistoryCache =
             new HashMap<>();
-
-    private final ArrayList<Infrastructure> infrastructureCache = new ArrayList<>();
 
     @Autowired
     public Privat24Service(RestTemplateBuilder restTemplateBuilder,
