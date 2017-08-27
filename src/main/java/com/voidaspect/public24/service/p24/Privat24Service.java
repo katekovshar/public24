@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -41,6 +42,8 @@ public final class Privat24Service implements Privat24 {
      */
     private final Map<LocalDate, ExchangeRateHistory> exchangeHistoryCache =
             new HashMap<>();
+
+    private final ArrayList<Infrastructure> infrastructureCache = new ArrayList<>();
 
     @Autowired
     public Privat24Service(RestTemplateBuilder restTemplateBuilder,
@@ -108,6 +111,27 @@ public final class Privat24Service implements Privat24 {
         return getCurrentExchangeRates(exchangeRateType).stream()
                 .filter(exchangeRate -> exchangeRate.getCurrency().equals(currency.name()))
                 .findAny();
+    }
+
+    @Override
+    public List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName) {
+        return getInfrastructureLocations(deviceType, cityName, "");
+    }
+
+    @Override
+    public List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName, String address) {
+        val uri = getInfrastructureRequestBuilder(deviceType)
+                .queryParam("city", cityName)
+                .queryParam("address", address)
+                .build().toUri();
+        log.debug("GET Request to p24 api: {}", uri);
+        return Arrays.asList(restTemplate.getForObject(uri, Infrastructure[].class));
+    }
+
+    private UriComponentsBuilder getInfrastructureRequestBuilder(DeviceType deviceType) {
+        return getUriComponentsBuilder()
+                .path("/infrastructure")
+                .queryParam(deviceType.name().toLowerCase());
     }
 
     /**

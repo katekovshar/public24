@@ -47,5 +47,8 @@ public interface Privat24 {
      */
     Optional<CurrentExchangeRate> getCurrentExchangeRates(ExchangeRateType exchangeRateType, Currency currency);
 
+    List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName);
+
+    List<Infrastructure> getInfrastructureLocations(DeviceType deviceType, String cityName, String address);
 
 }
