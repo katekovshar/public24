@@ -154,4 +154,24 @@ public class Privat24ServiceTest {
 
     }
 
+    @Test
+    public void testGetInfrastructureLocation_tso_Kharkiv_Moskovskiy() throws Exception {
+        String responseBody = Tests.loadTestResourceAsString("/data/p24/infrastructure-tso-kharkiv-msk.json");
+
+        restServiceServer.expect(requestTo("https://api.privatbank.ua/p24api/infrastructure?json&tso&city=Kharkiv&address=Moskovskyi"))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON_UTF8));
+
+        Infrastructure infrastructureLocations = privat24Service.getInfrastructureLocations(DeviceType.TSO, "Kharkiv", "Moskovskyi");
+
+        restServiceServer.verify();
+
+        assertEquals("Kharkiv", infrastructureLocations.getCity());
+        assertEquals("Moskovskyi", infrastructureLocations.getAddress());
+
+        infrastructureLocations.getDevices()
+                .forEach(device -> assertSame(DeviceType.TSO, device.getDeviceType()));
+
+    }
+
+
 }
