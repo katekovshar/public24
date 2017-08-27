@@ -1,7 +1,7 @@
 package com.voidaspect.public24.service.p24;
 
-import ai.api.util.IOUtils;
 import com.google.gson.Gson;
+import com.voidaspect.public24.Tests;
 import com.voidaspect.public24.config.gson.GsonConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,8 +53,8 @@ public class Privat24ServiceTest {
     @Before
     public void setUp() throws Exception {
         restServiceServer.reset();
-        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/exchange-rate.json"));
-        responseBodyCurrentExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/current-exchange-rate.json"));
+        responseBodyExchangeRate = Tests.loadTestResourceAsString("/data/p24/exchange-rate.json");
+        responseBodyCurrentExchangeRate = Tests.loadTestResourceAsString("/data/p24/current-exchange-rate.json");
     }
 
     @Test
@@ -79,7 +79,6 @@ public class Privat24ServiceTest {
     @Test
     @DirtiesContext
     public void testGetCurrentRateForCurrency() throws Exception {
-
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=11")))
                 .andRespond(withSuccess(responseBodyCurrentExchangeRate, MediaType.APPLICATION_JSON));
 
@@ -101,8 +100,7 @@ public class Privat24ServiceTest {
 
     @Test
     public void testGetExchangeRateForDate() throws Exception {
-
-        responseBodyExchangeRate = IOUtils.readAll(getClass().getResourceAsStream("/data/p24/exchange-rate.json"));
+        responseBodyExchangeRate = Tests.loadTestResourceAsString("/data/p24/exchange-rate.json");
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
                 .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
 
@@ -114,8 +112,6 @@ public class Privat24ServiceTest {
     @Test
     @DirtiesContext
     public void testGetExchangeRateForDateAndCurrency() throws Exception {
-
-
         restServiceServer.expect(requestTo(URI.create("https://api.privatbank.ua/p24api/exchange_rates?json&date=" + LocalDate.now().format(formatter))))
                 .andRespond(withSuccess(responseBodyExchangeRate, MediaType.APPLICATION_JSON));
 

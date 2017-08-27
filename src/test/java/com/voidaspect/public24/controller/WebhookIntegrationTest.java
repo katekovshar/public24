@@ -1,6 +1,6 @@
 package com.voidaspect.public24.controller;
 
-import ai.api.util.IOUtils;
+import com.voidaspect.public24.Tests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.io.IOException;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -28,8 +26,8 @@ public class WebhookIntegrationTest {
 
     @Test
     public void testExchangeHistory_USD() throws Exception {
-        String request = bodyPath("/data/webhook/history-usd-request.json");
-        String response = bodyPath("/data/webhook/history-usd-response.json");
+        String request = Tests.loadTestResourceAsString("/data/webhook/history-usd-request.json");
+        String response = Tests.loadTestResourceAsString("/data/webhook/history-usd-response.json");
 
         mockMvc.perform(post("/api-ai")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -37,10 +35,6 @@ public class WebhookIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(response, true));
 
-    }
-
-    private String bodyPath(String path) throws IOException {
-        return IOUtils.readAll(getClass().getResourceAsStream(path));
     }
 
 }
