@@ -110,11 +110,17 @@ public final class Privat24Service implements Privat24 {
                 .findAny();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName) {
         return getInfrastructureLocations(deviceType, cityName, "");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName, String address) {
         val uri = getInfrastructureRequestBuilder(deviceType)

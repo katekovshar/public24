@@ -47,8 +47,23 @@ public interface Privat24 {
      */
     Optional<CurrentExchangeRate> getCurrentExchangeRates(ExchangeRateType exchangeRateType, Currency currency);
 
+    /**
+     * Retrieves locations of devices in given city
+     *
+     * @param deviceType ATM or TSO (self-service terminal)
+     * @param cityName   name of the city to search in
+     * @return infrastructure location data
+     */
     Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName);
 
+    /**
+     * Retrieves locations of devices in given city
+     *
+     * @param deviceType ATM or TSO (self-service terminal)
+     * @param cityName   name of the city to search in
+     * @param address    part of the address to search for (usually a street name)
+     * @return infrastructure location data
+     */
     Infrastructure getInfrastructureLocations(DeviceType deviceType, String cityName, String address);
 
 }
