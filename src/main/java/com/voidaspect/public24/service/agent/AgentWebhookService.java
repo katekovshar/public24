@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.voidaspect.public24.service.agent.RequestParam.*;
@@ -37,6 +38,8 @@ public final class AgentWebhookService implements AgentWebhook {
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
     private static final int DEFAULT_MESSAGE_LIMIT = 20;
+
+    private static final Pattern COMMA_WITHOUT_SPACE_PATTERN = Pattern.compile(",(?! )");
 
     /**
      * Privat24 API service
@@ -137,6 +140,8 @@ public final class AgentWebhookService implements AgentWebhook {
                 val messages = infrastructureLocations.getDevices().stream()
                         .limit(limit)
                         .map(Device::getFullAddressEn)
+                        .map(COMMA_WITHOUT_SPACE_PATTERN::matcher)
+                        .map(matcher -> matcher.replaceAll(", "))
                         .collect(Collectors.toList());
                 val messageList = SimpleMessageList.builder() //todo google maps
                         .header(deviceType + " locations in " + city + ", " + address)
