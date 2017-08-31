@@ -1,11 +1,11 @@
 package com.voidaspect.public24.service.agent;
 
 import ai.api.model.Fulfillment;
+import ai.api.model.Result;
 import com.voidaspect.public24.controller.AiWebhookRequest;
+import com.voidaspect.public24.controller.BadWebhookRequestException;
+import com.voidaspect.public24.service.p24.*;
 import com.voidaspect.public24.service.p24.Currency;
-import com.voidaspect.public24.service.p24.ExchangeRateHistory;
-import com.voidaspect.public24.service.p24.ExchangeRateType;
-import com.voidaspect.public24.service.p24.Privat24;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.voidaspect.public24.service.agent.RequestParams.*;
+import static com.voidaspect.public24.service.agent.RequestParam.*;
 
 /**
  * {@link AgentWebhook} implementation which relies on:
@@ -67,14 +67,14 @@ public final class AgentWebhookService implements AgentWebhook {
         val intentName = incompleteResult.getMetadata().getIntentName();
         val intent = Intent.getByName(intentName);
 
-        val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
-        Optional<Currency> currency = Currency.getByName(currencyCode);
         final Fulfillment fulfillment;
         switch (intent) {
             case CURRENT_EXCHANGE_RATE: {
                 val exchangeRateTypeName = incompleteResult.getStringParameter(EXCHANGE_RATE_TYPE.getName(), ExchangeRateType.NON_CASH.getName());
                 val exchangeRateType = ExchangeRateType.getByName(exchangeRateTypeName);
-                List<String> rates = currency
+                val currency = getStringParamIfPresent(incompleteResult, CURRENCY)
+                        .flatMap(Currency::getByName);
+                val rates = currency
                         .map(ccy -> privat24.getCurrentExchangeRates(exchangeRateType, ccy)
                                 .map(Collections::singletonList)
                                 .orElseGet(Collections::emptyList))
@@ -85,7 +85,7 @@ public final class AgentWebhookService implements AgentWebhook {
                                 e.getBuyRate(),
                                 e.getSaleRate()))
                         .collect(Collectors.toList());
-                SimpleMessageList messageList = SimpleMessageList.builder()
+                val messageList = SimpleMessageList.builder()
                         .header("Current exchange rate for " + Currency.UAH)
                         .messages(rates)
                         .fallback("No exchange rate found for current date" +
@@ -99,9 +99,11 @@ public final class AgentWebhookService implements AgentWebhook {
                 val localDate = incompleteResult.getDateParameter(DATE.getName(), new Date())
                         .toInstant().atZone(ZONE_ID).toLocalDate();
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
+                val currency = getStringParamIfPresent(incompleteResult, CURRENCY)
+                        .flatMap(Currency::getByName);
                 log.debug("Retrieving currency exchange history for date {} and {} ccy", isoDate,
                         currency.map(Enum::name).orElse("unspecified"));
-                List<String> rates = currency
+                val rates = currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
                         .map(ExchangeRateHistory::getExchangeRates)
                         .orElseGet(() -> privat24.getExchangeRatesForDate(localDate).getExchangeRates())
@@ -111,7 +113,7 @@ public final class AgentWebhookService implements AgentWebhook {
                                 Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
                                 Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB)))
                         .collect(Collectors.toList());
-                SimpleMessageList messageList = SimpleMessageList.builder()
+                val messageList = SimpleMessageList.builder()
                         .header("Exchange rate for " + Currency.UAH + " on " + isoDate)
                         .messages(rates)
                         .fallback("No exchange rate history found for date " + isoDate +
@@ -121,10 +123,38 @@ public final class AgentWebhookService implements AgentWebhook {
                 fulfillment = Responses.fromSimpleStringList(messageList);
                 break;
             }
+            case INFRASTRUCTURE_LOCATION: {
+                val deviceType = getStringParamIfPresent(incompleteResult, INFRASTRUCTURE_TYPE)
+                        .flatMap(DeviceType::getByName)
+                        .orElseThrow(() -> new BadWebhookRequestException("No supported device type fond in request"));
+                val city = getStringParam(incompleteResult, CITY);
+                val address = getStringParam(incompleteResult, ADDRESS);
+                log.debug("Retrieving infrastructure location data for device type '{}', city '{}', address '{}'", deviceType, city, address);
+                Infrastructure infrastructureLocations = privat24.getInfrastructureLocations(deviceType, city, address);
+                val messages = infrastructureLocations.getDevices().stream()
+                        .map(Device::getFullAddressEn)
+                        .collect(Collectors.toList());
+                val messageList = SimpleMessageList.builder() //todo google maps
+                        .header(deviceType + " locations in " + city + ", " + address)
+                        .messages(messages)
+                        .fallback("No infrastructure found for given location")
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
+                break;
+            }
             default:
-                throw new IllegalStateException("Unreachable statement");
+                throw new UnsupportedOperationException("Intent Not Supported");
         }
         return fulfillment;
+    }
+
+    private Optional<String> getStringParamIfPresent(Result data, RequestParam requestParam) {
+        return Optional.ofNullable(data.getStringParameter(requestParam.getName(), null));
+    }
+
+
+    private String getStringParam(Result data, RequestParam requestParam) {
+        return data.getStringParameter(requestParam.getName());
     }
 
     /**

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 @Getter
-enum RequestParams {
+enum RequestParam {
 
     /**
      * Date - should be {@link java.util.Date}
@@ -23,7 +23,13 @@ enum RequestParams {
     /**
      * Exchange rate type - cash or non-cash
      */
-    EXCHANGE_RATE_TYPE("exchange-rate-type");
+    EXCHANGE_RATE_TYPE("exchange-rate-type"),
+
+    INFRASTRUCTURE_TYPE("infrastructure-type"),
+
+    CITY("city"),
+
+    ADDRESS("address");
 
     /**
      * Name of a parameter used in API.AI

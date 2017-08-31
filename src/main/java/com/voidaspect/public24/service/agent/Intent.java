@@ -15,6 +15,8 @@ import java.util.Arrays;
 @Getter
 enum Intent {
 
+    INFRASTRUCTURE_LOCATION("Infrastructure Location"),
+
     /**
      * @see com.voidaspect.public24.service.p24.Privat24#getCurrentExchangeRates(ExchangeRateType)
      */
