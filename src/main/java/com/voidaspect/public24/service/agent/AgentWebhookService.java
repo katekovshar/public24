@@ -49,8 +49,8 @@ public final class AgentWebhookService implements AgentWebhook {
     /**
      * DI-managed constructor.
      *
-     * @param privat24        value of {@link #privat24}
-     * @param currencyFormat  value of {@link #currencyFormat}
+     * @param privat24       value of {@link #privat24}
+     * @param currencyFormat value of {@link #currencyFormat}
      */
     @Autowired
     public AgentWebhookService(Privat24 privat24, Function<BigDecimal, String> currencyFormat) {
@@ -69,14 +69,12 @@ public final class AgentWebhookService implements AgentWebhook {
 
         val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
         Optional<Currency> currency = Currency.getByName(currencyCode);
-        List<String> messages = new ArrayList<>();
         final Fulfillment fulfillment;
         switch (intent) {
             case CURRENT_EXCHANGE_RATE: {
                 val exchangeRateTypeName = incompleteResult.getStringParameter(EXCHANGE_RATE_TYPE.getName(), ExchangeRateType.NON_CASH.getName());
                 val exchangeRateType = ExchangeRateType.getByName(exchangeRateTypeName);
-                messages.add("Current exchange rate for " + Currency.UAH);
-                messages.addAll(currency
+                List<String> rates = currency
                         .map(ccy -> privat24.getCurrentExchangeRates(exchangeRateType, ccy)
                                 .map(Collections::singletonList)
                                 .orElseGet(Collections::emptyList))
@@ -86,11 +84,15 @@ public final class AgentWebhookService implements AgentWebhook {
                                 e.getCurrency(),
                                 e.getBuyRate(),
                                 e.getSaleRate()))
-                        .collect(Collectors.toList()));
-                String fallback = "No exchange rate found for current date" +
-                        currency.map(c -> " and currency " + c + ".")
-                                .orElse(".");
-                fulfillment = Responses.fromSimpleStringList(messages, fallback);
+                        .collect(Collectors.toList());
+                SimpleMessageList messageList = SimpleMessageList.builder()
+                        .header("Current exchange rate for " + Currency.UAH)
+                        .messages(rates)
+                        .fallback("No exchange rate found for current date" +
+                                currency.map(c -> " and currency " + c + ".")
+                                        .orElse("."))
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
                 break;
             }
             case EXCHANGE_RATE_HISTORY: {
@@ -99,22 +101,24 @@ public final class AgentWebhookService implements AgentWebhook {
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
                 log.debug("Retrieving currency exchange history for date {} and {} ccy", isoDate,
                         currency.map(Enum::name).orElse("unspecified"));
-                messages.add("Exchange rate for " + Currency.UAH + " on " + isoDate);
-                messages.addAll(currency
+                List<String> rates = currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
                         .map(ExchangeRateHistory::getExchangeRates)
-                        .orElseGet(() -> privat24.getExchangeRatesForDate(localDate)
-                                .getExchangeRates())
+                        .orElseGet(() -> privat24.getExchangeRatesForDate(localDate).getExchangeRates())
                         .stream()
                         .map(e -> getExchangeRateDescription(
                                 e.getCurrency(),
                                 Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
                                 Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB)))
-                        .collect(Collectors.toList()));
-                String fallback = "No exchange rate history found for date " + isoDate +
-                        currency.map(c -> " and currency " + c + ".")
-                                .orElse(".");
-                fulfillment = Responses.fromSimpleStringList(messages, fallback);
+                        .collect(Collectors.toList());
+                SimpleMessageList messageList = SimpleMessageList.builder()
+                        .header("Exchange rate for " + Currency.UAH + " on " + isoDate)
+                        .messages(rates)
+                        .fallback("No exchange rate history found for date " + isoDate +
+                                currency.map(c -> " and currency " + c + ".")
+                                        .orElse("."))
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
                 break;
             }
             default:

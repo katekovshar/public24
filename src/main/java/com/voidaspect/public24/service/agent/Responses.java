@@ -4,6 +4,8 @@ import ai.api.model.Fulfillment;
 import ai.api.model.ResponseMessage;
 import lombok.val;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,24 +23,29 @@ final class Responses {
 
     /**
      * Creates {@link Fulfillment} object from a list of strings
-     * @param messages list of strings used to populate response messages
-     * @param fallback string used as fallback value in response if list of messages is insufficient
+     * @param simpleMessageList contains list of strings used to populate response messages
+     *                          and string used as fallback value in response if list of messages is insufficient
      * @return webhook response data
      */
-    static Fulfillment fromSimpleStringList(List<String> messages, String fallback) {
-        if (messages.size() <= 1) {
-            messages.clear();
-            messages.add(fallback);
+    static Fulfillment fromSimpleStringList(SimpleMessageList simpleMessageList) {
+        List<String> responseMessages;
+        val messageListMessages = simpleMessageList.getMessages();
+        if (messageListMessages.isEmpty()) {
+            responseMessages = Collections.singletonList(simpleMessageList.getFallback());
+        } else {
+            responseMessages = new ArrayList<>(messageListMessages.size() + 1);
+            responseMessages.add(simpleMessageList.getHeader());
+            responseMessages.addAll(messageListMessages);
         }
         val fulfillment = new Fulfillment();
-        List<ResponseMessage> responseSpeechList = messages.stream()
+        List<ResponseMessage> responseSpeechList = responseMessages.stream()
                 .map(m -> {
                     val responseSpeech = new ResponseMessage.ResponseSpeech();
                     responseSpeech.setSpeech(m);
                     return responseSpeech;
                 })
                 .collect(Collectors.toList());
-        String speech = messages.stream()
+        String speech = responseMessages.stream()
                 .collect(Collectors.joining("\n"));
         fulfillment.setSpeech(speech);
         fulfillment.setMessages(responseSpeechList);
