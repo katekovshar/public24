@@ -29,7 +29,9 @@ enum RequestParam {
 
     CITY("city"),
 
-    ADDRESS("address");
+    ADDRESS("address"),
+
+    LIMIT("limit");
 
     /**
      * Name of a parameter used in API.AI

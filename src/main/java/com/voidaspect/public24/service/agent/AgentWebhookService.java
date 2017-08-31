@@ -36,6 +36,8 @@ public final class AgentWebhookService implements AgentWebhook {
      */
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
+    private static final int DEFAULT_MESSAGE_LIMIT = 20;
+
     /**
      * Privat24 API service
      */
@@ -127,11 +129,13 @@ public final class AgentWebhookService implements AgentWebhook {
                 val deviceType = getStringParamIfPresent(incompleteResult, INFRASTRUCTURE_TYPE)
                         .flatMap(DeviceType::getByName)
                         .orElseThrow(() -> new BadWebhookRequestException("No supported device type fond in request"));
-                val city = getStringParam(incompleteResult, CITY);
-                val address = getStringParam(incompleteResult, ADDRESS);
+                val city = incompleteResult.getStringParameter(CITY.getName());
+                val address = incompleteResult.getStringParameter(ADDRESS.getName());
+                val limit = incompleteResult.getIntParameter(LIMIT.getName(), DEFAULT_MESSAGE_LIMIT);
                 log.debug("Retrieving infrastructure location data for device type '{}', city '{}', address '{}'", deviceType, city, address);
                 Infrastructure infrastructureLocations = privat24.getInfrastructureLocations(deviceType, city, address);
                 val messages = infrastructureLocations.getDevices().stream()
+                        .limit(limit)
                         .map(Device::getFullAddressEn)
                         .collect(Collectors.toList());
                 val messageList = SimpleMessageList.builder() //todo google maps
@@ -150,11 +154,6 @@ public final class AgentWebhookService implements AgentWebhook {
 
     private Optional<String> getStringParamIfPresent(Result data, RequestParam requestParam) {
         return Optional.ofNullable(data.getStringParameter(requestParam.getName(), null));
-    }
-
-
-    private String getStringParam(Result data, RequestParam requestParam) {
-        return data.getStringParameter(requestParam.getName());
     }
 
     /**
