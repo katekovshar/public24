@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Exception which signifies incorrect or incomplete requests
  */
-@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Incorrect webhook request")
+@ResponseStatus(code = HttpStatus.BAD_REQUEST)
 public final class BadWebhookRequestException extends RuntimeException {
 
     public BadWebhookRequestException(String message) {

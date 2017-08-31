@@ -62,7 +62,7 @@ public final class AgentWebhookService implements AgentWebhook {
      * {@inheritDoc}
      */
     @Override
-    public Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) {
+    public Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) throws BadWebhookRequestException {
         val incompleteResult = aiWebhookRequest.getResult();
         val intentName = incompleteResult.getMetadata().getIntentName();
         val intent = Intent.getByName(intentName);
@@ -143,7 +143,7 @@ public final class AgentWebhookService implements AgentWebhook {
                 break;
             }
             default:
-                throw new UnsupportedOperationException("Intent Not Supported");
+                throw new UnsupportedOperationException("Intent Not Supported: " + intent);
         }
         return fulfillment;
     }

@@ -41,7 +41,7 @@ public final class WebhookController {
      * @see com.voidaspect.public24.security.SecurityConfig
      */
     @PostMapping
-    public Fulfillment fulfill(@RequestBody AiWebhookRequest webhookRequest) {
+    public Fulfillment fulfill(@RequestBody AiWebhookRequest webhookRequest) throws BadWebhookRequestException {
         return agentWebhook.fulfillAgentResponse(webhookRequest);
     }
 
