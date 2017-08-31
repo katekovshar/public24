@@ -94,10 +94,6 @@ public class AgentWebhookServiceTest {
         assertFulfillment(fulfillment, exchangeRateHistory);
     }
 
-    private static Date localDateToDate(LocalDate date) {
-        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-    }
-
     @Test
     public void testExchangeRateHistory() throws Exception {
         Intent intent = Intent.EXCHANGE_RATE_HISTORY;
@@ -181,11 +177,6 @@ public class AgentWebhookServiceTest {
         verifyNoMoreInteractions(privat24);
     }
 
-    private void assertFallback(Fulfillment fulfillment, String fallback) {
-        assertFulfillmentContent(fulfillment, Collections.singletonList(
-                fallback));
-    }
-
     @Test
     public void testCurrentExchange_nonCash() throws Exception {
         Intent intent = Intent.CURRENT_EXCHANGE_RATE;
@@ -239,6 +230,16 @@ public class AgentWebhookServiceTest {
         verify(privat24, only())
                 .getCurrentExchangeRates(exchangeRateType, currency);
         assertFulfillment(fulfillment, currentRate);
+    }
+
+    private static Date localDateToDate(LocalDate date) {
+        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private void assertFallback(Fulfillment fulfillment, String fallback) {
+        assertEquals(fallback, fulfillment.getSpeech());
+        assertEquals(fallback, fulfillment.getDisplayText());
+        assertEquals(SOURCE, fulfillment.getSource());
     }
 
     private void assertFulfillment(Fulfillment fulfillment, ExchangeRateHistory exchangeRateHistory) {

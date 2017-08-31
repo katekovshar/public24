@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode
-abstract class MessageList {
+abstract class ResponseMessageData {
 
     private final String header;
 

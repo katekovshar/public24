@@ -12,7 +12,7 @@ import java.util.Map;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-final class MessageListWithLinks extends MessageList {
+final class MessageListWithLinks extends ResponseMessageData {
 
     Map<String, URI> messagesWithLinks;
 

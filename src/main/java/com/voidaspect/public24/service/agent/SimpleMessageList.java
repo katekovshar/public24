@@ -11,7 +11,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Value
-class SimpleMessageList extends MessageList {
+class SimpleMessageList extends ResponseMessageData {
 
     List<String> messages;
 

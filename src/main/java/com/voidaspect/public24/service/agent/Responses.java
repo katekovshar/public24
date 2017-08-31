@@ -73,9 +73,9 @@ final class Responses {
         return fulfillment;
     }
 
-    private static Fulfillment fallback(MessageList messageList) {
+    private static Fulfillment fallback(ResponseMessageData responseMessageData) {
         val fulfillment = createFulfillmentStub();
-        String speech = messageList.getFallback();
+        String speech = responseMessageData.getFallback();
         fulfillment.setDisplayText(speech);
         fulfillment.setSpeech(speech);
         return fulfillment;
