@@ -6,13 +6,12 @@ import ai.api.model.ResponseMessage;
 import ai.api.model.Result;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.voidaspect.public24.service.agent.format.CurrencyFormatService;
 import com.voidaspect.public24.config.gson.GsonConfig;
 import com.voidaspect.public24.controller.AiWebhookRequest;
 import com.voidaspect.public24.controller.BadWebhookRequestException;
-import com.voidaspect.public24.service.agent.response.ResponseService;
-import com.voidaspect.public24.service.p24.*;
+import com.voidaspect.public24.service.agent.format.CurrencyFormatService;
 import com.voidaspect.public24.service.p24.Currency;
+import com.voidaspect.public24.service.p24.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +30,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(
-        classes = {AgentWebhookService.class, ResponseService.class, GsonConfig.class, CurrencyFormatService.class},
+@SpringBootTest(classes = {
+        AgentWebhookService.class,
+        GsonConfig.class,
+        CurrencyFormatService.class},
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class AgentWebhookServiceTest {
 

@@ -2,7 +2,6 @@ package com.voidaspect.public24.service.agent;
 
 import ai.api.model.Fulfillment;
 import com.voidaspect.public24.controller.AiWebhookRequest;
-import com.voidaspect.public24.service.agent.response.ResponseFactory;
 import com.voidaspect.public24.service.p24.Currency;
 import com.voidaspect.public24.service.p24.ExchangeRateHistory;
 import com.voidaspect.public24.service.p24.ExchangeRateType;
@@ -25,7 +24,7 @@ import static com.voidaspect.public24.service.agent.RequestParams.*;
  * {@link AgentWebhook} implementation which relies on:
  * <ul>
  * <li>{@link Privat24}
- * <li>{@link ResponseFactory}
+ * <li>{@link Responses}
  * </ul>
  */
 @Service
@@ -43,11 +42,6 @@ public final class AgentWebhookService implements AgentWebhook {
     private final Privat24 privat24;
 
     /**
-     * Response data factory
-     */
-    private final ResponseFactory responseFactory;
-
-    /**
      * BigDecimal-to-String converter for currency values
      */
     private final Function<BigDecimal, String> currencyFormat;
@@ -56,13 +50,11 @@ public final class AgentWebhookService implements AgentWebhook {
      * DI-managed constructor.
      *
      * @param privat24        value of {@link #privat24}
-     * @param responseFactory value of {@link #responseFactory}
      * @param currencyFormat  value of {@link #currencyFormat}
      */
     @Autowired
-    public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, Function<BigDecimal, String> currencyFormat) {
+    public AgentWebhookService(Privat24 privat24, Function<BigDecimal, String> currencyFormat) {
         this.privat24 = privat24;
-        this.responseFactory = responseFactory;
         this.currencyFormat = currencyFormat;
     }
 
@@ -98,7 +90,7 @@ public final class AgentWebhookService implements AgentWebhook {
                 String fallback = "No exchange rate found for current date" +
                         currency.map(c -> " and currency " + c + ".")
                                 .orElse(".");
-                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
+                fulfillment = Responses.fromSimpleStringList(messages, fallback);
                 break;
             }
             case EXCHANGE_RATE_HISTORY: {
@@ -122,7 +114,7 @@ public final class AgentWebhookService implements AgentWebhook {
                 String fallback = "No exchange rate history found for date " + isoDate +
                         currency.map(c -> " and currency " + c + ".")
                                 .orElse(".");
-                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
+                fulfillment = Responses.fromSimpleStringList(messages, fallback);
                 break;
             }
             default:
