@@ -6,13 +6,12 @@ import ai.api.model.ResponseMessage;
 import ai.api.model.Result;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.voidaspect.public24.service.agent.format.CurrencyFormatService;
 import com.voidaspect.public24.config.gson.GsonConfig;
 import com.voidaspect.public24.controller.AiWebhookRequest;
 import com.voidaspect.public24.controller.BadWebhookRequestException;
-import com.voidaspect.public24.service.agent.response.ResponseService;
-import com.voidaspect.public24.service.p24.*;
+import com.voidaspect.public24.service.agent.format.CurrencyFormatService;
 import com.voidaspect.public24.service.p24.Currency;
+import com.voidaspect.public24.service.p24.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +30,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(
-        classes = {AgentWebhookService.class, ResponseService.class, GsonConfig.class, CurrencyFormatService.class},
+@SpringBootTest(classes = {
+        AgentWebhookService.class,
+        GsonConfig.class,
+        CurrencyFormatService.class},
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class AgentWebhookServiceTest {
 
@@ -83,17 +85,13 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
         HashMap<String, JsonElement> parameters = aiWebhookRequest.getResult().getParameters();
-        parameters.put(RequestParams.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
-        parameters.put(RequestParams.CURRENCY.getName(), gson.toJsonTree(currency));
+        parameters.put(RequestParam.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
+        parameters.put(RequestParam.CURRENCY.getName(), gson.toJsonTree(currency));
 
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, only())
                 .getExchangeRatesForDate(date, currency);
         assertFulfillment(fulfillment, exchangeRateHistory);
-    }
-
-    private static Date localDateToDate(LocalDate date) {
-        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     @Test
@@ -107,7 +105,7 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
         aiWebhookRequest.getResult().getParameters()
-                .put(RequestParams.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
+                .put(RequestParam.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
 
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, only())
@@ -128,8 +126,8 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
         HashMap<String, JsonElement> parameters = aiWebhookRequest.getResult().getParameters();
-        parameters.put(RequestParams.CURRENCY.getName(), gson.toJsonTree(currency.name()));
-        parameters.put(RequestParams.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
+        parameters.put(RequestParam.CURRENCY.getName(), gson.toJsonTree(currency.name()));
+        parameters.put(RequestParam.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
 
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, times(1))
@@ -140,7 +138,7 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequestAllCcy = createAiWebhookRequest(intent.getName());
         aiWebhookRequestAllCcy.getResult().getParameters()
-                .put(RequestParams.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
+                .put(RequestParam.DATE.getName(), gson.toJsonTree(localDateToDate(date)));
         Fulfillment fulfillmentAllCcy = agentWebhookService.fulfillAgentResponse(aiWebhookRequestAllCcy);
         verify(privat24, times(1))
                 .getExchangeRatesForDate(date);
@@ -160,7 +158,7 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
         HashMap<String, JsonElement> parameters = aiWebhookRequest.getResult().getParameters();
-        parameters.put(RequestParams.CURRENCY.getName(), gson.toJsonTree(currency.name()));
+        parameters.put(RequestParam.CURRENCY.getName(), gson.toJsonTree(currency.name()));
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, times(1))
                 .getCurrentExchangeRates(exchangeRateType, currency);
@@ -179,11 +177,6 @@ public class AgentWebhookServiceTest {
         verifyNoMoreInteractions(privat24);
     }
 
-    private void assertFallback(Fulfillment fulfillment, String fallback) {
-        assertFulfillmentContent(fulfillment, Collections.singletonList(
-                fallback));
-    }
-
     @Test
     public void testCurrentExchange_nonCash() throws Exception {
         Intent intent = Intent.CURRENT_EXCHANGE_RATE;
@@ -193,7 +186,7 @@ public class AgentWebhookServiceTest {
                 .willReturn(currentRates);
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
-        aiWebhookRequest.getResult().getParameters().put(RequestParams.EXCHANGE_RATE_TYPE.getName(), gson.toJsonTree(exchangeRateType.getName()));
+        aiWebhookRequest.getResult().getParameters().put(RequestParam.EXCHANGE_RATE_TYPE.getName(), gson.toJsonTree(exchangeRateType.getName()));
 
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, only())
@@ -230,13 +223,23 @@ public class AgentWebhookServiceTest {
 
         AiWebhookRequest aiWebhookRequest = createAiWebhookRequest(intent.getName());
         HashMap<String, JsonElement> parameters = aiWebhookRequest.getResult().getParameters();
-        parameters.put(RequestParams.EXCHANGE_RATE_TYPE.getName(), gson.toJsonTree(exchangeRateType.getName()));
-        parameters.put(RequestParams.CURRENCY.getName(), gson.toJsonTree(currency.name()));
+        parameters.put(RequestParam.EXCHANGE_RATE_TYPE.getName(), gson.toJsonTree(exchangeRateType.getName()));
+        parameters.put(RequestParam.CURRENCY.getName(), gson.toJsonTree(currency.name()));
 
         Fulfillment fulfillment = agentWebhookService.fulfillAgentResponse(aiWebhookRequest);
         verify(privat24, only())
                 .getCurrentExchangeRates(exchangeRateType, currency);
         assertFulfillment(fulfillment, currentRate);
+    }
+
+    private static Date localDateToDate(LocalDate date) {
+        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private void assertFallback(Fulfillment fulfillment, String fallback) {
+        assertEquals(fallback, fulfillment.getSpeech());
+        assertEquals(fallback, fulfillment.getDisplayText());
+        assertEquals(SOURCE, fulfillment.getSource());
     }
 
     private void assertFulfillment(Fulfillment fulfillment, ExchangeRateHistory exchangeRateHistory) {

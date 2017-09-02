@@ -1,6 +1,7 @@
 package com.voidaspect.public24.service.agent;
 
 import com.voidaspect.public24.controller.BadWebhookRequestException;
+import com.voidaspect.public24.service.p24.DeviceType;
 import com.voidaspect.public24.service.p24.ExchangeRateType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,11 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Getter
 enum Intent {
+
+    /**
+     * @see com.voidaspect.public24.service.p24.Privat24#getInfrastructureLocations(DeviceType, String, String)
+     */
+    INFRASTRUCTURE_LOCATION("Infrastructure Location"),
 
     /**
      * @see com.voidaspect.public24.service.p24.Privat24#getCurrentExchangeRates(ExchangeRateType)
@@ -36,7 +42,7 @@ enum Intent {
      * @return intent constant
      * @throws BadWebhookRequestException if intent is not found
      */
-    static Intent getByName(String name) {
+    static Intent getByName(String name) throws BadWebhookRequestException {
         return Arrays.stream(values())
                 .filter(intent -> compareIgnoreCaseAndSpaces(intent.name, name))
                 .findAny()

@@ -1,12 +1,11 @@
 package com.voidaspect.public24.service.agent;
 
 import ai.api.model.Fulfillment;
+import ai.api.model.Result;
 import com.voidaspect.public24.controller.AiWebhookRequest;
-import com.voidaspect.public24.service.agent.response.ResponseFactory;
+import com.voidaspect.public24.controller.BadWebhookRequestException;
+import com.voidaspect.public24.service.p24.*;
 import com.voidaspect.public24.service.p24.Currency;
-import com.voidaspect.public24.service.p24.ExchangeRateHistory;
-import com.voidaspect.public24.service.p24.ExchangeRateType;
-import com.voidaspect.public24.service.p24.Privat24;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +16,16 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.voidaspect.public24.service.agent.RequestParams.*;
+import static com.voidaspect.public24.service.agent.RequestParam.*;
 
 /**
  * {@link AgentWebhook} implementation which relies on:
  * <ul>
  * <li>{@link Privat24}
- * <li>{@link ResponseFactory}
+ * <li>{@link Responses}
  * </ul>
  */
 @Service
@@ -37,15 +37,14 @@ public final class AgentWebhookService implements AgentWebhook {
      */
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
+    private static final int DEFAULT_MESSAGE_LIMIT = 20;
+
+    private static final Pattern COMMA_WITHOUT_SPACE_PATTERN = Pattern.compile(",(?! )");
+
     /**
      * Privat24 API service
      */
     private final Privat24 privat24;
-
-    /**
-     * Response data factory
-     */
-    private final ResponseFactory responseFactory;
 
     /**
      * BigDecimal-to-String converter for currency values
@@ -55,14 +54,12 @@ public final class AgentWebhookService implements AgentWebhook {
     /**
      * DI-managed constructor.
      *
-     * @param privat24        value of {@link #privat24}
-     * @param responseFactory value of {@link #responseFactory}
-     * @param currencyFormat  value of {@link #currencyFormat}
+     * @param privat24       value of {@link #privat24}
+     * @param currencyFormat value of {@link #currencyFormat}
      */
     @Autowired
-    public AgentWebhookService(Privat24 privat24, ResponseFactory responseFactory, Function<BigDecimal, String> currencyFormat) {
+    public AgentWebhookService(Privat24 privat24, Function<BigDecimal, String> currencyFormat) {
         this.privat24 = privat24;
-        this.responseFactory = responseFactory;
         this.currencyFormat = currencyFormat;
     }
 
@@ -70,21 +67,19 @@ public final class AgentWebhookService implements AgentWebhook {
      * {@inheritDoc}
      */
     @Override
-    public Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) {
+    public Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) throws BadWebhookRequestException {
         val incompleteResult = aiWebhookRequest.getResult();
         val intentName = incompleteResult.getMetadata().getIntentName();
         val intent = Intent.getByName(intentName);
 
-        val currencyCode = incompleteResult.getStringParameter(CURRENCY.getName());
-        Optional<Currency> currency = Currency.getByName(currencyCode);
-        List<String> messages = new ArrayList<>();
         final Fulfillment fulfillment;
         switch (intent) {
             case CURRENT_EXCHANGE_RATE: {
                 val exchangeRateTypeName = incompleteResult.getStringParameter(EXCHANGE_RATE_TYPE.getName(), ExchangeRateType.NON_CASH.getName());
                 val exchangeRateType = ExchangeRateType.getByName(exchangeRateTypeName);
-                messages.add("Current exchange rate for " + Currency.UAH);
-                messages.addAll(currency
+                val currency = getStringParamIfPresent(incompleteResult, CURRENCY)
+                        .flatMap(Currency::getByName);
+                val rates = currency
                         .map(ccy -> privat24.getCurrentExchangeRates(exchangeRateType, ccy)
                                 .map(Collections::singletonList)
                                 .orElseGet(Collections::emptyList))
@@ -94,41 +89,76 @@ public final class AgentWebhookService implements AgentWebhook {
                                 e.getCurrency(),
                                 e.getBuyRate(),
                                 e.getSaleRate()))
-                        .collect(Collectors.toList()));
-                String fallback = "No exchange rate found for current date" +
-                        currency.map(c -> " and currency " + c + ".")
-                                .orElse(".");
-                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
+                        .collect(Collectors.toList());
+                val messageList = SimpleMessageList.builder()
+                        .header("Current exchange rate for " + Currency.UAH)
+                        .messages(rates)
+                        .fallback("No exchange rate found for current date" +
+                                currency.map(c -> " and currency " + c + ".")
+                                        .orElse("."))
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
                 break;
             }
             case EXCHANGE_RATE_HISTORY: {
                 val localDate = incompleteResult.getDateParameter(DATE.getName(), new Date())
                         .toInstant().atZone(ZONE_ID).toLocalDate();
                 val isoDate = localDate.format(DateTimeFormatter.ISO_DATE);
+                val currency = getStringParamIfPresent(incompleteResult, CURRENCY)
+                        .flatMap(Currency::getByName);
                 log.debug("Retrieving currency exchange history for date {} and {} ccy", isoDate,
                         currency.map(Enum::name).orElse("unspecified"));
-                messages.add("Exchange rate for " + Currency.UAH + " on " + isoDate);
-                messages.addAll(currency
+                val rates = currency
                         .map(ccy -> privat24.getExchangeRatesForDate(localDate, ccy))
                         .map(ExchangeRateHistory::getExchangeRates)
-                        .orElseGet(() -> privat24.getExchangeRatesForDate(localDate)
-                                .getExchangeRates())
+                        .orElseGet(() -> privat24.getExchangeRatesForDate(localDate).getExchangeRates())
                         .stream()
                         .map(e -> getExchangeRateDescription(
                                 e.getCurrency(),
                                 Optional.ofNullable(e.getPurchaseRate()).orElseGet(e::getPurchaseRateNB),
                                 Optional.ofNullable(e.getSaleRate()).orElseGet(e::getSaleRateNB)))
-                        .collect(Collectors.toList()));
-                String fallback = "No exchange rate history found for date " + isoDate +
-                        currency.map(c -> " and currency " + c + ".")
-                                .orElse(".");
-                fulfillment = responseFactory.fromSimpleStringList(messages, fallback);
+                        .collect(Collectors.toList());
+                val messageList = SimpleMessageList.builder()
+                        .header("Exchange rate for " + Currency.UAH + " on " + isoDate)
+                        .messages(rates)
+                        .fallback("No exchange rate history found for date " + isoDate +
+                                currency.map(c -> " and currency " + c + ".")
+                                        .orElse("."))
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
+                break;
+            }
+            case INFRASTRUCTURE_LOCATION: {
+                val deviceType = getStringParamIfPresent(incompleteResult, INFRASTRUCTURE_TYPE)
+                        .flatMap(DeviceType::getByName)
+                        .orElseThrow(() -> new BadWebhookRequestException("No supported device type fond in request"));
+                val city = incompleteResult.getStringParameter(CITY.getName());
+                val address = incompleteResult.getStringParameter(ADDRESS.getName());
+                val limit = incompleteResult.getIntParameter(LIMIT.getName(), DEFAULT_MESSAGE_LIMIT);
+                log.debug("Retrieving infrastructure location data for device type '{}', city '{}', address '{}'", deviceType, city, address);
+                Infrastructure infrastructureLocations = privat24.getInfrastructureLocations(deviceType, city, address);
+                val messages = infrastructureLocations.getDevices().stream()
+                        .limit(limit)
+                        .map(Device::getFullAddressEn)
+                        .map(COMMA_WITHOUT_SPACE_PATTERN::matcher)
+                        .map(matcher -> matcher.replaceAll(", "))
+                        .collect(Collectors.toList());
+                val messageList = SimpleMessageList.builder() //todo google maps
+                        .header(deviceType + " locations in " + city + ", " + address)
+                        .messages(messages)
+                        .fallback("No infrastructure found for given location")
+                        .build();
+                fulfillment = Responses.fromSimpleStringList(messageList);
                 break;
             }
             default:
-                throw new IllegalStateException("Unreachable statement");
+                throw new UnsupportedOperationException("Intent Not Supported: " + intent);
         }
         return fulfillment;
+    }
+
+    private Optional<String> getStringParamIfPresent(Result data, RequestParam requestParam) {
+        return Optional.ofNullable(data.getStringParameter(requestParam.getName(), null));
     }
 
     /**
