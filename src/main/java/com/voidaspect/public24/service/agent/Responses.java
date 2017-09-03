@@ -59,6 +59,7 @@ final class Responses {
             return fallback(messageListWithLinks);
 
         val responseMessages = messagesWithLinks.entrySet().stream()
+                .sorted((e1, e2) -> String.CASE_INSENSITIVE_ORDER.compare(e1.getKey(), e2.getKey()))
                 .map(e -> new ResponseMessage.ResponseCard.Button(e.getKey(), String.valueOf(e.getValue())))
                 .collect(Collectors.toList());
         val responseCard = new ResponseMessage.ResponseCard();
