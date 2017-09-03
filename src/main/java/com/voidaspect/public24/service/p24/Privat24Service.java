@@ -8,29 +8,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * REST Client for Privat24 API
+ *
  * @author mikhail.h
  */
 @Service
 @Slf4j
 public final class Privat24Service implements Privat24 {
 
-    /**
-     * Charset used in encoding operations
-     */
-    private static final Charset CHARSET = StandardCharsets.UTF_8;
+    private static final Pattern SPACES_PATTERN = Pattern.compile(" +");
 
     /**
      * Http client instance
@@ -142,19 +136,20 @@ public final class Privat24Service implements Privat24 {
         return restTemplate.getForObject(uri, Infrastructure.class);
     }
 
-    private URI populateLocationQueryParams(UriComponentsBuilder infrastructureRequestBuilder, String cityName, String address)  {
-        try {
-            return infrastructureRequestBuilder
-                    .queryParam("city", URLEncoder.encode(cityName, CHARSET.displayName()))
-                    .queryParam("address", URLEncoder.encode(address, CHARSET.displayName()))
-                    .build().encode().toUri();
-        } catch (UnsupportedEncodingException e) {
-            throw new UncheckedIOException(e);
-        }
+    private URI populateLocationQueryParams(UriComponentsBuilder infrastructureRequestBuilder, String cityName, String address) {
+        return infrastructureRequestBuilder
+                .queryParam("city", trimQueryParam(cityName))
+                .queryParam("address", trimQueryParam(address))
+                .build().encode().toUri();
+    }
+
+    private String trimQueryParam(String query) {
+        return SPACES_PATTERN.matcher(query.trim()).replaceAll(" ");
     }
 
     /**
      * Preconfigures URI for Privat24 requests
+     *
      * @return partially populated builder
      */
     private UriComponentsBuilder getUriComponentsBuilder() {
