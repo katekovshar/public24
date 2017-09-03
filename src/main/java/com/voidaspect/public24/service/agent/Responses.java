@@ -6,6 +6,7 @@ import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -17,6 +18,8 @@ final class Responses {
      * Source of data produced by webhook
      */
     private static final String SOURCE = "Privat24 API";
+
+    private static final Pattern INTEGER_IN_BEGINNING_PATTERN = Pattern.compile("^\\d+");
 
     private Responses() {
     }
@@ -59,7 +62,7 @@ final class Responses {
             return fallback(messageListWithLinks);
 
         val responseMessages = messagesWithLinks.entrySet().stream()
-                .sorted((e1, e2) -> String.CASE_INSENSITIVE_ORDER.compare(e1.getKey(), e2.getKey()))
+                .sorted((e1, e2) -> compareStringsByNumberInTheBeginning(e1.getKey(), e2.getKey()))
                 .map(e -> new ResponseMessage.ResponseCard.Button(e.getKey(), String.valueOf(e.getValue())))
                 .collect(Collectors.toList());
         val responseCard = new ResponseMessage.ResponseCard();
@@ -88,4 +91,20 @@ final class Responses {
         return fulfillment;
     }
 
+    private static int compareStringsByNumberInTheBeginning(String s1, String s2) {
+        if (INTEGER_IN_BEGINNING_PATTERN.matcher(s1).find() && INTEGER_IN_BEGINNING_PATTERN.matcher(s2).find()) {
+            return Integer.compare(getIntAtTheBeginning(s1), getIntAtTheBeginning(s2));
+        } else {
+            return s1.compareTo(s2);
+        }
+    }
+
+    private static int getIntAtTheBeginning(String s) {
+        val matcher = INTEGER_IN_BEGINNING_PATTERN.matcher(s);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group());
+        } else {
+            return 0;
+        }
+    }
 }
