@@ -10,6 +10,7 @@ import com.voidaspect.public24.config.gson.GsonConfig;
 import com.voidaspect.public24.controller.AiWebhookRequest;
 import com.voidaspect.public24.controller.BadWebhookRequestException;
 import com.voidaspect.public24.service.agent.format.CurrencyFormatService;
+import com.voidaspect.public24.service.geo.GMapsService;
 import com.voidaspect.public24.service.p24.Currency;
 import com.voidaspect.public24.service.p24.*;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import static org.mockito.BDDMockito.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
         AgentWebhookService.class,
+        GMapsService.class,
         GsonConfig.class,
         CurrencyFormatService.class},
         webEnvironment = SpringBootTest.WebEnvironment.NONE)

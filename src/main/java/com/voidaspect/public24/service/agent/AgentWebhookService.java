@@ -4,6 +4,7 @@ import ai.api.model.Fulfillment;
 import ai.api.model.Result;
 import com.voidaspect.public24.controller.AiWebhookRequest;
 import com.voidaspect.public24.controller.BadWebhookRequestException;
+import com.voidaspect.public24.service.geo.GMaps;
 import com.voidaspect.public24.service.p24.*;
 import com.voidaspect.public24.service.p24.Currency;
 import lombok.extern.slf4j.Slf4j;
@@ -51,16 +52,20 @@ public final class AgentWebhookService implements AgentWebhook {
      */
     private final Function<BigDecimal, String> currencyFormat;
 
+    private final GMaps gMaps;
+
     /**
      * DI-managed constructor.
      *
      * @param privat24       value of {@link #privat24}
+     * @param gMaps          value of {@link #gMaps}
      * @param currencyFormat value of {@link #currencyFormat}
      */
     @Autowired
-    public AgentWebhookService(Privat24 privat24, Function<BigDecimal, String> currencyFormat) {
+    public AgentWebhookService(Privat24 privat24, GMaps gMaps, Function<BigDecimal, String> currencyFormat) {
         this.privat24 = privat24;
         this.currencyFormat = currencyFormat;
+        this.gMaps = gMaps;
     }
 
     /**
@@ -139,16 +144,18 @@ public final class AgentWebhookService implements AgentWebhook {
                 Infrastructure infrastructureLocations = privat24.getInfrastructureLocations(deviceType, city, address);
                 val messages = infrastructureLocations.getDevices().stream()
                         .limit(limit)
-                        .map(Device::getFullAddressEn)
-                        .map(COMMA_WITHOUT_SPACE_PATTERN::matcher)
-                        .map(matcher -> matcher.replaceAll(", "))
-                        .collect(Collectors.toList());
-                val messageList = SimpleMessageList.builder() //todo google maps
+                        .collect(Collectors.toMap(
+                                e -> infrastructureLocations.getDevices().indexOf(e) + ": " +
+                                        COMMA_WITHOUT_SPACE_PATTERN
+                                                .matcher(e.getFullAddressEn())
+                                                .replaceAll(", "),
+                                e -> gMaps.getCoordinatesQuery(e.getLatitude(), e.getLongitude())));
+                val messageList = MessageListWithLinks.builder()
                         .header(deviceType + " locations in " + city + ", " + address)
-                        .messages(messages)
+                        .messagesWithLinks(messages)
                         .fallback("No infrastructure found for given location")
                         .build();
-                fulfillment = Responses.fromSimpleStringList(messageList);
+                fulfillment = Responses.fromMessageListWithLinks(messageList);
                 break;
             }
             default:
