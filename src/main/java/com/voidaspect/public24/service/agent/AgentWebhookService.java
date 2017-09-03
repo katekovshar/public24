@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -142,16 +143,19 @@ public final class AgentWebhookService implements AgentWebhook {
                 val limit = incompleteResult.getIntParameter(LIMIT.getName(), DEFAULT_MESSAGE_LIMIT);
                 log.debug("Retrieving infrastructure location data for device type '{}', city '{}', address '{}'", deviceType, city, address);
                 Infrastructure infrastructureLocations = privat24.getInfrastructureLocations(deviceType, city, address);
+                val counter = new AtomicInteger(0);
                 val messages = infrastructureLocations.getDevices().stream()
                         .limit(limit)
                         .collect(Collectors.toMap(
-                                e -> infrastructureLocations.getDevices().indexOf(e) + ": " +
+                                e -> counter.incrementAndGet() + ": " +
                                         COMMA_WITHOUT_SPACE_PATTERN
                                                 .matcher(e.getFullAddressEn())
                                                 .replaceAll(", "),
                                 e -> gMaps.getCoordinatesQuery(e.getLatitude(), e.getLongitude())));
+                val header = deviceType + " locations in " + city +
+                        (address.isEmpty() ? "" : ", " + address);
                 val messageList = MessageListWithLinks.builder()
-                        .header(deviceType + " locations in " + city + ", " + address)
+                        .header(header)
                         .messagesWithLinks(messages)
                         .fallback("No infrastructure found for given location")
                         .build();
