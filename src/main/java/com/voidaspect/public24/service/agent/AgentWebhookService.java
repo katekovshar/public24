@@ -152,12 +152,12 @@ public final class AgentWebhookService implements AgentWebhook {
                                                 .matcher(e.getFullAddressEn())
                                                 .replaceAll(", "),
                                 e -> gMaps.getCoordinatesQuery(e.getLatitude(), e.getLongitude())));
-                val header = deviceType + " locations in " + city +
-                        (address.isEmpty() ? "" : ", " + address);
+                val locationDescription = city + (address.isEmpty() ? "" : ", " + address);
+                val header = deviceType + " locations in " + locationDescription;
                 val messageList = MessageListWithLinks.builder()
                         .header(header)
                         .messagesWithLinks(messages)
-                        .fallback("No infrastructure found for given location")
+                        .fallback("No infrastructure found for location: " + locationDescription)
                         .build();
                 fulfillment = Responses.fromMessageListWithLinks(messageList);
                 break;
