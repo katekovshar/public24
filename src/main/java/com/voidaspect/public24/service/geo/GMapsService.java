@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 
 @Service
-public class GMapsService implements GMaps {
+public final class GMapsService implements GMaps {
 
     @Override
     public URI getCoordinatesQuery(BigDecimal latitude, BigDecimal longitude) { //todo param validation
