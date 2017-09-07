@@ -7,7 +7,7 @@ Server and web demo: https://public24.herokuapp.com/
 
 Staging server:  https://public24-staging.herokuapp.com/
 
-Current features in this version:
+Current features in this version (0.2):
 
 - "Current Exchange Rate" - returns current exchange rate. Is available for cash and non-cash transactions (non-cash by default). Request example: __Current cash exchange for USD*__. 
 
