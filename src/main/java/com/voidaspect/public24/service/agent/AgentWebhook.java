@@ -14,6 +14,7 @@ public interface AgentWebhook {
      *
      * @param aiWebhookRequest request data
      * @return webhook response data with speech and Rich Messages
+     * @throws BadWebhookRequestException when request intent is unrecognized or request is malformed
      */
     Fulfillment fulfillAgentResponse(AiWebhookRequest aiWebhookRequest) throws BadWebhookRequestException;
 

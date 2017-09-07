@@ -39,8 +39,14 @@ public final class AgentWebhookService implements AgentWebhook {
      */
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
+    /**
+     * Default limit of messages for {@link MessageListWithLinks}
+     */
     private static final int DEFAULT_MESSAGE_LIMIT = 20;
 
+    /**
+     * Pattern for character sequences like "x,y" (without space after comma)
+     */
     private static final Pattern COMMA_WITHOUT_SPACE_PATTERN = Pattern.compile(",(?! )");
 
     /**
@@ -53,6 +59,9 @@ public final class AgentWebhookService implements AgentWebhook {
      */
     private final Function<BigDecimal, String> currencyFormat;
 
+    /**
+     * Interface for creating Google Maps queries.
+     */
     private final GMaps gMaps;
 
     /**
@@ -168,6 +177,13 @@ public final class AgentWebhookService implements AgentWebhook {
         return fulfillment;
     }
 
+    /**
+     * Null-safe and type-safe extraction of a string parameter from request
+     *
+     * @param data         API.AI request resolution object
+     * @param requestParam request parameter which needs extraction
+     * @return optional of requested string parameter
+     */
     private Optional<String> getStringParamIfPresent(Result data, RequestParam requestParam) {
         return Optional.ofNullable(data.getStringParameter(requestParam.getName(), null));
     }
