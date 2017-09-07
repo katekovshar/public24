@@ -13,6 +13,6 @@ Current features in this version:
 
 - "Exchange Rate History" - returns exchange rate history for inputted data. Request example: __CAD* for 03.06.2016__.
 
-- "Infrastructure Location" - returns locations of PrivatBank infrastructure with Google Maps links. Request example: __7 ATMs at Kharkiv, Heroiv Pratsi*__. Device type (ATM or self-service terminal) and city name are required. Address and limit are optional.
+- "Infrastructure Location" - returns locations of PrivatBank infrastructure with Google Maps links. Request example: __7 ATMs at Kharkiv, Heroiv Pratsi__. Device type (ATM or self-service terminal) and city name are required. Address and limit are optional.
 
 > *If the currency isn't specified returns all existing currencies.
