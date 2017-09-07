@@ -18,6 +18,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 public class Public24Application {
 
+	/**
+	 * Application entry point.
+     *
+	 * @param args command line args
+     * @see SpringApplication#run(Object, String...)
+     * @see SpringBootApplication
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(Public24Application.class, args);
 	}
