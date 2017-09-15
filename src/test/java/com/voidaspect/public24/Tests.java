@@ -1,9 +1,10 @@
 package com.voidaspect.public24;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,14 +17,9 @@ public final class Tests {
     private Tests(){}
 
     public static String loadTestResourceAsString(String path) {
-        URI uri;
+        Resource resource = new ClassPathResource(path);
         try {
-            uri = Tests.class.getResource(path).toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            return new String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8);
+            return new String(Files.readAllBytes(Paths.get(resource.getURI())), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -22,7 +22,6 @@ deploy:
     master: public24
     next: public24-staging
 branches:
-  only:
-  - master
-  - next
+  except:
+  - frontline
 sudo: false
